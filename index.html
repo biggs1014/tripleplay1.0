@@ -6,275 +6,275 @@
 <title>TRIPLE PLAY 1.0</title>
 <style>
 :root {
-    --tv-blue: #212b47;
-    --tv-dark: #131820;
-    --tv-gold: #ffe066;
-    --tv-white: #f4f5fa;
-    --tv-gray: #1a1c26;
-    --tv-green: #2ecc40;
-    --tv-lime: #a6ff4d;
-    --tv-red: #d81c2b;
-    --tv-shadow: 0 6px 32px #0008;
+ --tv-blue: #212b47;
+ --tv-dark: #131820;
+ --tv-gold: #ffe066;
+ --tv-white: #f4f5fa;
+ --tv-gray: #1a1c26;
+ --tv-green: #2ecc40;
+ --tv-lime: #a6ff4d;
+ --tv-red: #d81c2b;
+ --tv-shadow: 0 6px 32px #0008;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    font-family: 'Roboto', 'Arial', sans-serif;
-    background: linear-gradient(135deg, #0b1623 0%, #24365a 100%);
-    display: flex; justify-content: center; align-items: center; min-height: 100vh;
+ font-family: 'Roboto', 'Arial', sans-serif;
+ background: linear-gradient(135deg, #0b1623 0%, #24365a 100%);
+ display: flex; justify-content: center; align-items: center; min-height: 100vh;
 }
 .main-container {
-    min-height: 100vh;
-    width: 100vw;
-    max-width: 100vw;
-    background: linear-gradient(120deg, #232a35 20%, #101522 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
-    position: relative;
-    padding: 0;
+ min-height: 100vh;
+ width: 100vw;
+ max-width: 100vw;
+ background: linear-gradient(120deg, #232a35 20%, #101522 100%);
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ overflow: auto;
+ position: relative;
+ padding: 0;
 }
 #game-container {
-    width: 100%;
-    max-width: 640px;
-    margin: 0 auto;
-    background: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+ width: 100%;
+ max-width: 640px;
+ margin: 0 auto;
+ background: none;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
 }
 canvas {
-    border-radius: 18px;
-    border: 4px solid var(--tv-blue);
-    background: #125b1b radial-gradient(ellipse 130% 90% at 55% 65%, #30803f 50%, #18331e 90%);
-    width: 100%;
-    max-width: 630px;
-    aspect-ratio: 1/1;
-    margin-bottom: 18px;
-    box-shadow: var(--tv-shadow);
-    display: block;
+ border-radius: 18px;
+ border: 4px solid var(--tv-blue);
+ background: #125b1b radial-gradient(ellipse 130% 90% at 55% 65%, #30803f 50%, #18331e 90%);
+ width: 100%;
+ max-width: 630px;
+ aspect-ratio: 1/1;
+ margin-bottom: 18px;
+ box-shadow: var(--tv-shadow);
+ display: block;
 }
 #action-buttons {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 8px;
+ width: 100%;
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: center;
+ gap: 10px;
+ margin-bottom: 8px;
 }
 button {
-    border: none;
-    outline: none;
-    border-radius: 32px;
-    padding: 12px 26px;
-    background: linear-gradient(180deg, #e9eefa 90%, #b5c3e2 100%);
-    color: #16203a;
-    font-weight: 900;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    font-size: 1.05em;
-    letter-spacing: 0.06em;
-    box-shadow: 0 2.5px 18px #0002, 0 1.5px 0px #fff3 inset;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, box-shadow 0.18s, outline 0.12s;
+ border: none;
+ outline: none;
+ border-radius: 32px;
+ padding: 12px 26px;
+ background: linear-gradient(180deg, #e9eefa 90%, #b5c3e2 100%);
+ color: #16203a;
+ font-weight: 900;
+ font-family: 'Segoe UI', 'Arial', sans-serif;
+ font-size: 1.05em;
+ letter-spacing: 0.06em;
+ box-shadow: 0 2.5px 18px #0002, 0 1.5px 0px #fff3 inset;
+ cursor: pointer;
+ transition: background 0.15s, color 0.15s, box-shadow 0.18s, outline 0.12s;
 }
 button:active {
-    background: linear-gradient(180deg, #d1eaff 60%, #a0bde4 100%);
-    color: #008f24;
+ background: linear-gradient(180deg, #d1eaff 60%, #a0bde4 100%);
+ color: #008f24;
 }
 button:hover, button:focus-visible {
-    background: linear-gradient(180deg, var(--tv-lime) 70%, #fff9e1 100%);
-    color: #232a35;
-    box-shadow: 0 4px 22px var(--tv-lime), 0 1.5px 0px #fff5 inset;
-    outline: 2px solid var(--tv-green);
-    outline-offset: 1.5px;
+ background: linear-gradient(180deg, var(--tv-lime) 70%, #fff9e1 100%);
+ color: #232a35;
+ box-shadow: 0 4px 22px var(--tv-lime), 0 1.5px 0px #fff5 inset;
+ outline: 2px solid var(--tv-green);
+ outline-offset: 1.5px;
 }
 #undo-btn {
-    background: linear-gradient(180deg, #1d293e 90%, #0b1c3a 100%);
-    color: #fff;
-    font-weight: bold;
-    border: 2px solid var(--tv-gold);
-    margin-right: 10px;
+ background: linear-gradient(180deg, #1d293e 90%, #0b1c3a 100%);
+ color: #fff;
+ font-weight: bold;
+ border: 2px solid var(--tv-gold);
+ margin-right: 10px;
 }
 #undo-btn:hover, #undo-btn:focus-visible {
-    background: linear-gradient(180deg, #2a3550 90%, #253048 100%);
-    color: var(--tv-lime);
-    box-shadow: 0 4px 20px var(--tv-green), 0 1.5px 0px #fff8 inset;
-    outline: 2.5px solid var(--tv-green);
+ background: linear-gradient(180deg, #2a3550 90%, #253048 100%);
+ color: var(--tv-lime);
+ box-shadow: 0 4px 20px var(--tv-green), 0 1.5px 0px #fff8 inset;
+ outline: 2.5px solid var(--tv-green);
 }
 #undo-btn:disabled { opacity: 0.4; color: #dbe5ff; border-color: #555; background: #444; cursor: not-allowed; }
 
 #scoreboard-container {
-    width: 99%;
-    max-width: 470px;
-    margin: 8px auto 10px auto;
-    border-radius: 16px;
-    background: linear-gradient(95deg, var(--tv-blue) 60%, var(--tv-gray) 100%);
-    box-shadow: 0 2.5px 20px #000b, 0 1.5px 0px #55ff8c77 inset;
-    display: flex;
-    overflow: hidden;
-    border: 3.5px solid #1e2234;
-    align-items: stretch;
-    font-family: 'Oswald', 'Roboto', 'Arial', sans-serif;
+ width: 99%;
+ max-width: 470px;
+ margin: 8px auto 10px auto;
+ border-radius: 16px;
+ background: linear-gradient(95deg, var(--tv-blue) 60%, var(--tv-gray) 100%);
+ box-shadow: 0 2.5px 20px #000b, 0 1.5px 0px #55ff8c77 inset;
+ display: flex;
+ overflow: hidden;
+ border: 3.5px solid #1e2234;
+ align-items: stretch;
+ font-family: 'Oswald', 'Roboto', 'Arial', sans-serif;
 }
 .scoreboard-section {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 10px 10px 10px;
-    min-width: 0;
+ flex: 1;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ padding: 14px 10px 10px 10px;
+ min-width: 0;
 }
 .scoreboard-section span:first-child { margin-right: 13px; }
 .scoreboard-left {
-    background: #26334e;
-    color: #e7e8fa;
-    font-size: 1.25em;
-    border-right: 1.5px solid #34415b;
+ background: #26334e;
+ color: #e7e8fa;
+ font-size: 1.25em;
+ border-right: 1.5px solid #34415b;
 }
 .scoreboard-right {
-    background: #1a8c20;
-    color: #fff;
-    font-size: 1.25em;
-    border-left: 1.5px solid #34415b;
+ background: #1a8c20;
+ color: #fff;
+ font-size: 1.25em;
+ border-left: 1.5px solid #34415b;
 }
 .scoreboard-middle {
-    background: #18331e;
-    color: var(--tv-lime);
-    flex-direction: column;
-    min-width: 70px;
-    font-family: 'Share Tech Mono', 'Oswald', 'Roboto Mono', 'Consolas', 'Arial', sans-serif;
-    text-shadow: 0 2.5px 8px var(--tv-lime), 0 1.5px #232a3577;
-    border-radius: 8px;
-    font-size: 1.38em;
+ background: #18331e;
+ color: var(--tv-lime);
+ flex-direction: column;
+ min-width: 70px;
+ font-family: 'Share Tech Mono', 'Oswald', 'Roboto Mono', 'Consolas', 'Arial', sans-serif;
+ text-shadow: 0 2.5px 8px var(--tv-lime), 0 1.5px #232a3577;
+ border-radius: 8px;
+ font-size: 1.38em;
 }
 .inning-display { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1.3em; }
 #inning-arrow {
-    color: var(--tv-green);
-    font-size: 1.25em;
-    margin-right: 4px;
-    text-shadow: 0 0 6px var(--tv-green);
+ color: var(--tv-green);
+ font-size: 1.25em;
+ margin-right: 4px;
+ text-shadow: 0 0 6px var(--tv-green);
 }
 #inning-number {
-    color: var(--tv-lime);
-    font-weight: 900;
-    font-size: 1.23em;
-    font-family: inherit;
+ color: var(--tv-lime);
+ font-weight: 900;
+ font-size: 1.23em;
+ font-family: inherit;
 }
 #outs-display {
-    margin-top: 2px;
-    font-size: 0.98em;
-    color: #e7e8fa;
-    text-shadow: 0 1.5px #121820;
+ margin-top: 2px;
+ font-size: 0.98em;
+ color: #e7e8fa;
+ text-shadow: 0 1.5px #121820;
 }
 #mini-base-container {
-    position: relative;
-    width: 125px;
-    height: 80px;
-    margin: 10px auto 5px auto;
+ position: relative;
+ width: 125px;
+ height: 80px;
+ margin: 10px auto 5px auto;
 }
 .mini-base {
-    position: absolute;
-    width: 27px;
-    height: 27px;
-    background-color: #ecf3fa;
-    border: 2px solid #9bb4d5;
-    box-shadow: 0 1.5px 7px #121820aa;
-    transform: rotate(45deg);
-    cursor: pointer;
-    transition: background 0.13s, border 0.13s, box-shadow 0.14s;
+ position: absolute;
+ width: 27px;
+ height: 27px;
+ background-color: #ecf3fa;
+ border: 2px solid #9bb4d5;
+ box-shadow: 0 1.5px 7px #121820aa;
+ transform: rotate(45deg);
+ cursor: pointer;
+ transition: background 0.13s, border 0.13s, box-shadow 0.14s;
 }
 .base-second { bottom: 60px; left: 50%; transform: translate(-50%, 0) rotate(45deg); }
-.base-home   { bottom: 0; left: 50%; transform: translate(-50%, 0) rotate(45deg); }
-.base-first  { bottom: 30px; left: calc(50% + 32px); transform: translate(-50%, 0) rotate(45deg); }
-.base-third  { bottom: 30px; left: calc(50% - 32px); transform: translate(-50%, 0) rotate(45deg); }
+.base-home { bottom: 0; left: 50%; transform: translate(-50%, 0) rotate(45deg); }
+.base-first { bottom: 30px; left: calc(50% + 32px); transform: translate(-50%, 0) rotate(45deg); }
+.base-third { bottom: 30px; left: calc(50% - 32px); transform: translate(-50%, 0) rotate(45deg); }
 .mini-base.occupied {
-    background-color: var(--tv-lime) !important;
-    border-color: var(--tv-green);
-    box-shadow: 0 0 9px var(--tv-green);
+ background-color: var(--tv-lime) !important;
+ border-color: var(--tv-green);
+ box-shadow: 0 0 9px var(--tv-green);
 }
 #animation-log {
-    margin-top: 9px;
-    max-height: 64px;
-    overflow-y: auto;
-    width: 93%;
-    background: #232a35;
-    color: var(--tv-green);
-    border: 2px solid #253048;
-    padding: 8px 9px;
-    font-size: clamp(0.95em, 1.08vw, 1.13em);
-    border-radius: 7px;
-    font-family: 'Share Tech Mono', 'Consolas', 'Roboto Mono', monospace;
-    box-shadow: 0 2.5px 18px #0003;
+ margin-top: 9px;
+ max-height: 64px;
+ overflow-y: auto;
+ width: 93%;
+ background: #232a35;
+ color: var(--tv-green);
+ border: 2px solid #253048;
+ padding: 8px 9px;
+ font-size: clamp(0.95em, 1.08vw, 1.13em);
+ border-radius: 7px;
+ font-family: 'Share Tech Mono', 'Consolas', 'Roboto Mono', monospace;
+ box-shadow: 0 2.5px 18px #0003;
 }
 .status-indicator {
-    width: 22px; height: 22px; border-radius: 50%; margin: 6px; display: inline-block; border: 2px solid #fff;
+ width: 22px; height: 22px; border-radius: 50%; margin: 6px; display: inline-block; border: 2px solid #fff;
 }
 .status-connected { background-color: var(--tv-green); }
 .status-connecting { background-color: var(--tv-lime); }
 .status-disconnected { background-color: var(--tv-red); }
 @media (max-width: 660px) {
-    canvas { max-width: 99vw; }
-    #scoreboard-container { max-width: 99vw; }
-    .scoreboard-section { font-size: 1em; padding: 8px 2px 7px 2px;}
-    button { font-size: 0.95em; padding: 9px 13px; }
-    .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
+ canvas { max-width: 99vw; }
+ #scoreboard-container { max-width: 99vw; }
+ .scoreboard-section { font-size: 1em; padding: 8px 2px 7px 2px;}
+ button { font-size: 0.95em; padding: 9px 13px; }
+ .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
 </style>
 <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Oswald:700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="main-container">
-    <div id="game-container">
-        <canvas id="baseballCanvas"></canvas>
-        <div id="action-buttons">
-            <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
-            <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
-            <button onclick="resetScenario()">RESET</button>
-            <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
-        </div>
-        <div id="scoreboard-container">
-            <div class="scoreboard-section scoreboard-left">
-                <span id="away-team-name">AWAY</span>
-                <span id="away-score">0</span>
-            </div>
-            <div class="scoreboard-section scoreboard-middle">
-                <div class="inning-display">
-                    <span id="inning-arrow">▲</span>
-                    <span id="inning-number">1</span>
-                </div>
-                <div id="outs-display">0 OUTS</div>
-            </div>
-            <div class="scoreboard-section scoreboard-right">
-                <span id="home-team-name">HOME</span>
-                <span id="home-score">0</span>
-            </div>
-        </div>
-        <div id="mini-base-container">
-            <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
-            <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
-            <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
-            <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
-        </div>
-        <div id="animation-log"></div>
-         <div style="display: flex; justify-content: center; margin-top:7px;">
-            <div style="text-align:center; margin: 0 10px;">
-                <span style="color:white; display:block;">ESP32-1</span>
-                <div id="status-display-1" class="status-indicator status-connecting"></div>
-            </div>
-            <div style="text-align:center; margin: 0 10px;">
-                <span style="color:white; display:block;">ESP32-2</span>
-                <div id="status-display-2" class="status-indicator status-connecting"></div>
-            </div>
-            <div style="text-align:center; margin: 0 10px;">
-                <span style="color:white; display:block;">ESP32-3</span>
-                <div id="status-display-3" class="status-indicator status-connecting"></div>
-            </div>
-            <div style="text-align:center; margin: 0 10px;">
-                <span style="color:white; display:block;">ESP32-4</span>
-                <div id="status-display-4" class="status-indicator status-connecting"></div>
-            </div>
-        </div>
+ <div id="game-container">
+  <canvas id="baseballCanvas"></canvas>
+  <div id="action-buttons">
+   <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
+   <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
+   <button onclick="resetScenario()">RESET</button>
+   <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
+  </div>
+  <div id="scoreboard-container">
+   <div class="scoreboard-section scoreboard-left">
+    <span id="away-team-name">AWAY</span>
+    <span id="away-score">0</span>
+   </div>
+   <div class="scoreboard-section scoreboard-middle">
+    <div class="inning-display">
+     <span id="inning-arrow">▲</span>
+     <span id="inning-number">1</span>
     </div>
+    <div id="outs-display">0 OUTS</div>
+   </div>
+   <div class="scoreboard-section scoreboard-right">
+    <span id="home-team-name">HOME</span>
+    <span id="home-score">0</span>
+   </div>
+  </div>
+  <div id="mini-base-container">
+   <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
+   <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
+   <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
+   <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
+  </div>
+  <div id="animation-log"></div>
+   <div style="display: flex; justify-content: center; margin-top:7px;">
+   <div style="text-align:center; margin: 0 10px;">
+    <span style="color:white; display:block;">ESP32-1</span>
+    <div id="status-display-1" class="status-indicator status-connecting"></div>
+   </div>
+   <div style="text-align:center; margin: 0 10px;">
+    <span style="color:white; display:block;">ESP32-2</span>
+    <div id="status-display-2" class="status-indicator status-connecting"></div>
+   </div>
+   <div style="text-align:center; margin: 0 10px;">
+    <span style="color:white; display:block;">ESP32-3</span>
+    <div id="status-display-3" class="status-indicator status-connecting"></div>
+   </div>
+   <div style="text-align:center; margin: 0 10px;">
+    <span style="color:white; display:block;">ESP32-4</span>
+    <div id="status-display-4" class="status-indicator status-connecting"></div>
+   </div>
+  </div>
+ </div>
 </div>
 <script>
 const DEBUG_MODE = true;
@@ -283,39 +283,53 @@ const DOM_UPDATE_INTERVAL = 250;
 const BASE_SPEED = 1 / 15;
 const BASE_LABEL_FONT_SCALE = 0.02;
 const PLAYER_NAME_FONT_SCALE = 0.035;
+
+// FIX: The lookup map is not needed and was removed.
+
 let allPlayers = [];
 const container = document.getElementById("game-container");
 const logElement = document.getElementById("animation-log");
 const undoBtn = document.getElementById("undo-btn");
 let undoStack = [];
+let teamLogos = {};
+
 function saveState() {
-    undoStack.push(structuredClone({
-        logic: logic.getState(),
-        logHTML: logElement.innerHTML
-    }));
-    undoBtn.disabled = false;
+  undoStack.push(logic.getState());
+  undoBtn.disabled = false;
 }
+
 function restoreState(state) {
-    if (!state) return;
-    logic.setState(state.logic);
-    logElement.innerHTML = state.logHTML;
-    updateScoreboard();
-    updateMiniBases();
-    redrawNeeded = true;
+  if (!state) return;
+  logic.setState(state); 
+  logElement.innerHTML = state.logHTML || "";
+  updateScoreboard();
+  updateMiniBases();
+  redrawNeeded = true;
 }
+
 function undo() {
-    if (undoStack.length === 0) return;
-    restoreState(undoStack.pop());
-    if (undoStack.length === 0) undoBtn.disabled = true;
-    addAnimationLog("Undid last action.");
+  if (undoStack.length === 0) return;
+  restoreState(undoStack.pop());
+  if (undoStack.length === 0) undoBtn.disabled = true;
+  addAnimationLog("Undid last action.");
 }
-fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/all_players_stats.json')
+
+fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/team_logos.json')
   .then(resp => resp.json())
   .then(data => {
-      allPlayers = data;
-      addAnimationLog("MLB player data loaded: " + allPlayers.length + " players.");
+    teamLogos = data;
+    addAnimationLog(`Team logos loaded: ${Object.keys(teamLogos).length} teams.`);
   })
-  .catch(() => addAnimationLog("Failed to load player stats from GitHub. Using defaults."));
+  .catch(err => addAnimationLog("ERROR: Failed to load team logos from GitHub."));
+
+fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/all_players_stats.json')
+ .then(resp => resp.json())
+ .then(data => {
+  allPlayers = data;
+  addAnimationLog("MLB player data loaded: " + allPlayers.length + " players.");
+ })
+ .catch(() => addAnimationLog("Failed to load player stats from GitHub. Using defaults."));
+
 const logoImage = new Image();
 logoImage.src = "https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/tripleplay1.png";
 logoImage.onload = () => redrawNeeded = true;
@@ -326,466 +340,536 @@ let backgroundImageLoaded = false;
 backgroundImage.onload = () => { backgroundImageLoaded = true; addAnimationLog("Field image loaded."); redrawNeeded = true;};
 backgroundImage.onerror = () => { addAnimationLog("Field image missing."); backgroundImageLoaded = false; };
 function addAnimationLog(message) {
-    const newEntry = document.createElement("div");
-    newEntry.innerHTML = message;
-    logElement.appendChild(newEntry);
-    logElement.scrollTop = logElement.scrollHeight;
-    if(DEBUG_MODE) console.log(message.replace(/<[^>]*>?/gm, ''));
+ const newEntry = document.createElement("div");
+ newEntry.innerHTML = message;
+ logElement.appendChild(newEntry);
+ logElement.scrollTop = logElement.scrollHeight;
+ if(DEBUG_MODE) console.log(message.replace(/<[^>]*>?/gm, ''));
 }
 class Runner {
-    constructor(pos, base_name, target, player) {
-        this.pos = pos;
-        this.base = base_name;
-        this.target = target;
-        this.player = player || { Name: "RANDOM", Speed: 70 };
-        let s = parseInt(this.player.Speed || 70);
-        if (isNaN(s)) s = 70;
-        this.speed = BASE_SPEED * (0.04 + (s / 99) * 0.06);
-        this.current_fraction = 0;
-        this.isOut = false;
-        this.isMoving = false;
+ constructor(pos, base_name, target, player) {
+  this.pos = pos;
+  this.base = base_name;
+  this.target = target;
+  this.player = player || { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
+  let s = parseInt(this.player.Speed || 70);
+  if (isNaN(s)) s = 70;
+  this.speed = BASE_SPEED * (0.04 + (s / 99) * 0.06);
+  this.current_fraction = 0;
+  this.isOut = false;
+  this.isMoving = false;
+  this.logoImage = null;
+  this.logoLoaded = false;
+  this.loadLogo();
+ }
+
+ loadLogo() {
+    // FIX: Use the full team name directly as the key, which matches the JSON structure.
+    const fullTeamName = this.player["Team Name"];
+
+   if (fullTeamName && teamLogos[fullTeamName]) {
+     const svgText = teamLogos[fullTeamName];
+     const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
+     
+      const img = new Image();
+     img.onload = () => {
+       this.logoLoaded = true;
+       redrawNeeded = true;
+     };
+     img.onerror = () => {
+       console.error(`Failed to load logo image for ${fullTeamName}`);
+     };
+     img.src = svgUrl;
+     this.logoImage = img;
+   } else {
+        if(DEBUG_MODE && fullTeamName) {
+            console.log(`Logo not found for team: "${fullTeamName}"`);
+        }
     }
-    clone() { return new Runner([...this.pos], this.base, this.target, {...this.player}); }
+ }
+
+ clone() { return new Runner([...this.pos], this.base, this.target, {...this.player}); }
 }
 class GameLogic {
-    constructor(base_coords) {
-        this.base_coords = base_coords;
-        this.OFF = 0; this.FLASHING = 1; this.RED = 2;
-        this.DEFAULT_FLASH_MS = 400; this.MIN_FLASH_MS = 100;
-        this.base_states = {}; this.base_colors = {};
-        this.last_toggle_time = {}; this.dynamic_flash_ms = {};
-        this.runners = []; this.homeScore = 0; this.awayScore = 0;
-        this.outs = 0; this.inning = 1; this.topOfInning = true;
-        for (const name in base_coords) {
-            this.base_states[name] = this.OFF;
-            this.base_colors[name] = "#f4f5fa";
-            this.last_toggle_time[name] = performance.now();
-            this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
-        }
+ constructor(base_coords) {
+  this.base_coords = base_coords;
+  this.OFF = 0; this.FLASHING = 1; this.RED = 2;
+  this.DEFAULT_FLASH_MS = 400; this.MIN_FLASH_MS = 100;
+  this.base_states = {}; this.base_colors = {};
+  this.last_toggle_time = {}; this.dynamic_flash_ms = {};
+  this.runners = []; this.homeScore = 0; this.awayScore = 0;
+  this.outs = 0; this.inning = 1; this.topOfInning = true;
+  for (const name in base_coords) {
+   this.base_states[name] = this.OFF;
+   this.base_colors[name] = "#f4f5fa";
+   this.last_toggle_time[name] = performance.now();
+   this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
+  }
+ }
+ set_base_default(base_name) {
+  this.base_states[base_name] = this.OFF;
+  this.base_colors[base_name] = "#f4f5fa";
+  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
+  redrawNeeded = true;
+ }
+ set_base_flashing(base_name) {
+  this.base_states[base_name] = this.FLASHING;
+  if (!this.last_toggle_time[base_name]) this.last_toggle_time[base_name] = performance.now();
+  if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#a6ff4d") {
+   this.base_colors[base_name] = "#2ecc40";
+  }
+  redrawNeeded = true;
+ }
+ set_base_red(base_name) {
+  this.base_states[base_name] = this.RED;
+  this.base_colors[base_name] = "#d81c2b";
+  redrawNeeded = true;
+ }
+ clearBases() {
+  this.runners = [];
+  for (const b in this.base_states) this.set_base_default(b);
+  addAnimationLog("All bases cleared.");
+  redrawNeeded = true;
+ }
+ recordOut() {
+  this.outs++;
+  addAnimationLog(`Out recorded! Total outs: ${this.outs}`);
+  if (this.outs >= 3) {
+   this.outs = 0;
+   addAnimationLog("Three outs! Switching half-inning...");
+   this.nextInning();
+  }
+  redrawNeeded = true;
+ }
+ nextInning() {
+  if (this.topOfInning) {
+   this.topOfInning = false;
+   addAnimationLog(`Now entering bottom of inning ${this.inning}`);
+  } else {
+   this.inning++;
+   this.topOfInning = true;
+   addAnimationLog(`Now entering top of inning ${this.inning}`);
+  }
+  this.clearBases();
+  redrawNeeded = true;
+ }
+ scoreRun() {
+  if (this.topOfInning) {
+   this.awayScore++;
+   addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
+  } else {
+   this.homeScore++;
+   addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
+  }
+  redrawNeeded = true;
+ }
+ reset_all() {
+  this.homeScore = 0; this.awayScore = 0; this.outs = 0;
+  this.inning = 1; this.topOfInning = true;
+  this.clearBases();
+  addAnimationLog("Game state has been fully reset.");
+  redrawNeeded = true;
+ }
+ add_runner(base_name) {
+  saveState();
+  if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
+   addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} already occupied.`);
+   return;
+  }
+  const pos = this.get_runner_position(base_name);
+  const target = this.get_next_base(base_name);
+  let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
+  if (allPlayers.length > 0) {
+   player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+  }
+  const runner = new Runner(pos, base_name, target, player);
+  this.runners.push(runner);
+  this.set_base_red(base_name);
+  addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
+  redrawNeeded = true;
+ }
+ get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
+ get_next_base(current_base) {
+  switch (current_base) {
+   case "home": return "first";
+   case "first": return "second";
+   case "second": return "third";
+   case "third": return "home";
+   default: "home";
+  }
+ }
+ remove_runner_from_base(runner) {
+  const idx = this.runners.indexOf(runner);
+  if (idx > -1) {
+   this.runners.splice(idx, 1);
+   redrawNeeded = true;
+  }
+ }
+ update_flashing() {
+  const now = performance.now();
+  for (const base_name in this.base_states) {
+   if (this.base_states[base_name] === this.FLASHING) {
+    if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#a6ff4d") {
+     this.base_colors[base_name] = "#2ecc40";
     }
-    set_base_default(base_name) {
-        this.base_states[base_name] = this.OFF;
-        this.base_colors[base_name] = "#f4f5fa";
-        this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
-        redrawNeeded = true;
+    const elapsed = now - this.last_toggle_time[base_name];
+    if (elapsed >= this.dynamic_flash_ms[base_name]) {
+     this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#a6ff4d" : "#2ecc40";
+     this.last_toggle_time[base_name] = now;
+     redrawNeeded = true;
     }
-    set_base_flashing(base_name) {
-        this.base_states[base_name] = this.FLASHING;
-        if (!this.last_toggle_time[base_name]) this.last_toggle_time[base_name] = performance.now();
-        // Use green/lime green for flashing
-        if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#a6ff4d") {
-            this.base_colors[base_name] = "#2ecc40";
-        }
-        redrawNeeded = true;
+   }
+  }
+ }
+ move_all_runners() {
+  saveState();
+  if (!this.runners.length) {
+   addAnimationLog("No runners to move.");
+   return null;
+  }
+  addAnimationLog("Moving all runners...");
+  const transitions = this.runners.filter((r) => !r.isOut).map((runner) => {
+   runner.isMoving = true;
+   this.set_base_default(runner.base);
+   this.set_base_flashing(runner.target);
+   addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
+   return { runner, start: [...runner.pos], end: this.base_coords[runner.target] };
+  });
+  return (function* (logic, transitions) {
+   let allFinished = false;
+   while (!allFinished) {
+    allFinished = true;
+    for (let i = transitions.length - 1; i >= 0; i--) if (transitions[i].runner.isOut) transitions.splice(i, 1);
+    for (const t of transitions) {
+     const runner = t.runner;
+     if (runner.isOut) continue;
+     if (runner.current_fraction < 1) {
+      allFinished = false;
+      const [sx, sy] = t.start; const [ex, ey] = t.end;
+      runner.current_fraction += runner.speed;
+      const frac = Math.min(runner.current_fraction, 1);
+      runner.pos = [ sx + (ex - sx) * frac, sy + (ey - sy) * frac ];
+      redrawNeeded = true;
+     }
     }
-    set_base_red(base_name) {
-        this.base_states[base_name] = this.RED;
-        this.base_colors[base_name] = "#d81c2b";
-        redrawNeeded = true;
+    yield;
+   }
+   for (const t of transitions) {
+    const runner = t.runner;
+    if (runner.isOut) continue;
+    runner.base = runner.target;
+    runner.target = logic.get_next_base(runner.base);
+    runner.current_fraction = 0;
+    runner.isMoving = false;
+    if (runner.base === "home") {
+     addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
+     logic.scoreRun();
+     logic.remove_runner_from_base(runner);
+     logic.set_base_default("home");
+    } else {
+     addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
+     logic.set_base_red(runner.base);
     }
-    clearBases() {
-        this.runners = [];
-        for (const b in this.base_states) this.set_base_default(b);
-        addAnimationLog("All bases cleared.");
-        redrawNeeded = true;
+    redrawNeeded = true;
+   }
+   for (const base_name in logic.base_states) {
+    if (logic.base_states[base_name] === logic.FLASHING) {
+     if (!logic.runners.some((r) => r.base === base_name && !r.isOut)) {
+      logic.set_base_default(base_name);
+     }
     }
-    recordOut() {
-        this.outs++;
-        addAnimationLog(`Out recorded! Total outs: ${this.outs}`);
-        if (this.outs >= 3) {
-            this.outs = 0;
-            addAnimationLog("Three outs! Switching half-inning...");
-            this.nextInning();
-        }
-        redrawNeeded = true;
-    }
-    nextInning() {
-        if (this.topOfInning) {
-            this.topOfInning = false;
-            addAnimationLog(`Now entering bottom of inning ${this.inning}`);
-        } else {
-            this.inning++;
-            this.topOfInning = true;
-            addAnimationLog(`Now entering top of inning ${this.inning}`);
-        }
-        this.clearBases();
-        redrawNeeded = true;
-    }
-    scoreRun() {
-        if (this.topOfInning) {
-            this.awayScore++;
-            addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
-        } else {
-            this.homeScore++;
-            addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
-        }
-        redrawNeeded = true;
-    }
-    reset_all() {
-        this.homeScore = 0; this.awayScore = 0; this.outs = 0;
-        this.inning = 1; this.topOfInning = true;
-        this.clearBases();
-        addAnimationLog("Game state has been fully reset.");
-        redrawNeeded = true;
-    }
-    add_runner(base_name) {
-        saveState();
-        if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
-            addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} already occupied.`);
-            return;
-        }
-        const pos = this.get_runner_position(base_name);
-        const target = this.get_next_base(base_name);
-        let player = { Name: "RANDOM", Speed: 70 };
-        if (allPlayers.length > 0) {
-            player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
-        }
-        const runner = new Runner(pos, base_name, target, player);
-        this.runners.push(runner);
-        this.set_base_red(base_name);
-        addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (Speed: ${runner.player.Speed})`);
-        redrawNeeded = true;
-    }
-    get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
-    get_next_base(current_base) {
-        switch (current_base) {
-            case "home": return "first";
-            case "first": return "second";
-            case "second": return "third";
-            case "third": return "home";
-            default: return "home";
-        }
-    }
-    remove_runner_from_base(runner) {
-        const idx = this.runners.indexOf(runner);
-        if (idx > -1) {
-            this.runners.splice(idx, 1);
-            redrawNeeded = true;
-        }
-    }
-    update_flashing() {
-        const now = performance.now();
-        for (const base_name in this.base_states) {
-            if (this.base_states[base_name] === this.FLASHING) {
-                if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#a6ff4d") {
-                    this.base_colors[base_name] = "#2ecc40";
-                }
-                const elapsed = now - this.last_toggle_time[base_name];
-                if (elapsed >= this.dynamic_flash_ms[base_name]) {
-                    // Alternate green/lime green
-                    this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#a6ff4d" : "#2ecc40";
-                    this.last_toggle_time[base_name] = now;
-                    redrawNeeded = true;
-                }
-            }
-        }
-    }
-    move_all_runners() {
-        saveState();
-        if (!this.runners.length) {
-            addAnimationLog("No runners to move.");
-            return null;
-        }
-        addAnimationLog("Moving all runners...");
-        const transitions = this.runners.filter((r) => !r.isOut).map((runner) => {
-            runner.isMoving = true;
-            this.set_base_default(runner.base);
-            this.set_base_flashing(runner.target);
-            addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
-            return { runner, start: [...runner.pos], end: this.base_coords[runner.target] };
-        });
-        return (function* (logic, transitions) {
-            let allFinished = false;
-            while (!allFinished) {
-                allFinished = true;
-                for (let i = transitions.length - 1; i >= 0; i--) if (transitions[i].runner.isOut) transitions.splice(i, 1);
-                for (const t of transitions) {
-                    const runner = t.runner;
-                    if (runner.isOut) continue;
-                    if (runner.current_fraction < 1) {
-                        allFinished = false;
-                        const [sx, sy] = t.start; const [ex, ey] = t.end;
-                        runner.current_fraction += runner.speed;
-                        const frac = Math.min(runner.current_fraction, 1);
-                        runner.pos = [ sx + (ex - sx) * frac, sy + (ey - sy) * frac ];
-                        redrawNeeded = true;
-                    }
-                }
-                yield;
-            }
-            for (const t of transitions) {
-                const runner = t.runner;
-                if (runner.isOut) continue;
-                runner.base = runner.target;
-                runner.target = logic.get_next_base(runner.base);
-                runner.current_fraction = 0;
-                runner.isMoving = false;
-                if (runner.base === "home") {
-                    addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
-                    logic.scoreRun();
-                    logic.remove_runner_from_base(runner);
-                    logic.set_base_default("home");
-                } else {
-                    addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
-                    logic.set_base_red(runner.base);
-                }
-                redrawNeeded = true;
-            }
-            for (const base_name in logic.base_states) {
-                if (logic.base_states[base_name] === logic.FLASHING) {
-                    if (!logic.runners.some((r) => r.base === base_name && !r.isOut)) {
-                        logic.set_base_default(base_name);
-                    }
-                }
-            }
-            addAnimationLog("All runner movements complete.");
-        }).bind(this)(this, transitions);
-    }
-    getState() {
-        return {
-            base_coords: structuredClone(this.base_coords),
-            base_states: structuredClone(this.base_states),
-            base_colors: structuredClone(this.base_colors),
-            last_toggle_time: structuredClone(this.last_toggle_time),
-            dynamic_flash_ms: structuredClone(this.dynamic_flash_ms),
-            runners: this.runners.map(r => ({ ...r, pos: [...r.pos], player: { ...r.player } })),
-            homeScore: this.homeScore,
-            awayScore: this.awayScore,
-            outs: this.outs,
-            inning: this.inning,
-            topOfInning: this.topOfInning,
-            allPlayers: structuredClone(allPlayers)
-        };
-    }
-    setState(state) {
-        Object.assign(this, structuredClone(state));
-    }
+   }
+   addAnimationLog("All runner movements complete.");
+  }).bind(this)(this, transitions);
+ }
+
+ getState() {
+  return {
+   base_coords: this.base_coords,
+   base_states: this.base_states,
+   base_colors: this.base_colors,
+   last_toggle_time: this.last_toggle_time,
+   dynamic_flash_ms: this.dynamic_flash_ms,
+   runners: this.runners.map(r => ({ 
+     pos: r.pos, 
+     base: r.base, 
+     target: r.target, 
+     player: r.player,
+     speed: r.speed,
+     current_fraction: r.current_fraction,
+     isOut: r.isOut,
+     isMoving: r.isMoving
+   })),
+   homeScore: this.homeScore,
+   awayScore: this.awayScore,
+   outs: this.outs,
+   inning: this.inning,
+   topOfInning: this.topOfInning,
+   logHTML: logElement.innerHTML
+  };
+ }
+
+ setState(state) {
+  Object.assign(this, state);
+  this.runners = state.runners.map(rData => 
+    new Runner(rData.pos, rData.base, rData.target, rData.player)
+  );
+ }
 }
 const canvas = document.getElementById("baseballCanvas");
 const ctx = canvas.getContext("2d");
 let canvasWidth = 600, canvasHeight = 600;
 const base_coords = {
-    home: [canvasWidth / 2, canvasHeight * 0.8],
-    first: [canvasWidth * 0.7, canvasHeight * 0.6],
-    second: [canvasWidth / 2, canvasHeight * 0.4],
-    third: [canvasWidth * 0.3, canvasHeight * 0.6],
+ home: [canvasWidth / 2, canvasHeight * 0.8],
+ first: [canvasWidth * 0.7, canvasHeight * 0.6],
+ second: [canvasWidth / 2, canvasHeight * 0.4],
+ third: [canvasWidth * 0.3, canvasHeight * 0.6],
 };
 const logic = new GameLogic(base_coords);
 let animation_gen = null, redrawNeeded = true, resizeNeeded = true;
 function resizeCanvas() {
-    const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
-    const computedStyle = getComputedStyle(canvas.parentElement);
-    const containerWidth = parseInt(computedStyle.width, 10);
-    const canvasSize = containerWidth * 0.97;
-    canvas.width = canvasSize * dpr;
-    canvas.height = canvasSize * dpr;
-    canvas.style.width = canvasSize + 'px';
-    canvas.style.height = canvasSize + 'px';
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    const norm = {
-        home: [0.5, 0.8], first: [0.7, 0.6], second: [0.5, 0.4], third: [0.3, 0.6],
-    };
-    logic.base_coords = {
-        home: [canvasWidth * norm.home[0], canvasHeight * norm.home[1]],
-        first: [canvasWidth * norm.first[0], canvasHeight * norm.first[1]],
-        second: [canvasWidth * norm.second[0], canvasHeight * norm.second[1]],
-        third: [canvasWidth * norm.third[0], canvasHeight * norm.third[1]],
-    };
-    logic.runners.forEach(r => { if (!r.isMoving) r.pos = logic.get_runner_position(r.base); });
-    redrawNeeded = true;
+ const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
+ const computedStyle = getComputedStyle(canvas.parentElement);
+ const containerWidth = parseInt(computedStyle.width, 10);
+ const canvasSize = containerWidth * 0.97;
+ canvas.width = canvasSize * dpr;
+ canvas.height = canvasSize * dpr;
+ canvas.style.width = canvasSize + 'px';
+ canvas.style.height = canvasSize + 'px';
+ canvasWidth = canvas.width;
+ canvasHeight = canvas.height;
+ const norm = {
+  home: [0.5, 0.8], first: [0.7, 0.6], second: [0.5, 0.4], third: [0.3, 0.6],
+ };
+ logic.base_coords = {
+  home: [canvasWidth * norm.home[0], canvasHeight * norm.home[1]],
+  first: [canvasWidth * norm.first[0], canvasHeight * norm.first[1]],
+  second: [canvasWidth * norm.second[0], canvasHeight * norm.second[1]],
+  third: [canvasWidth * norm.third[0], canvasHeight * norm.third[1]],
+ };
+ logic.runners.forEach(r => { if (!r.isMoving) r.pos = logic.get_runner_position(r.base); });
+ redrawNeeded = true;
 }
 function draw_field() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (backgroundImageLoaded && backgroundImage) {
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    } else {
-        ctx.fillStyle = "#30803f";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    const bc = logic.base_coords;
-    const mx = (bc.home[0] + bc.second[0]) / 2;
-    const my = (bc.home[1] + bc.second[1]) / 2;
-    ctx.save();
-    ctx.globalAlpha = 0.9;
-    ctx.shadowColor = "#a6ff4d";
-    ctx.shadowBlur = 17;
-    ctx.fillStyle = "#f6d89b";
-    ctx.strokeStyle = "#358c21";
-    ctx.beginPath();
-    ctx.arc(mx, my, canvasWidth * 0.021, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-    // Bases - TV glassy diamond
-    const BASE_HALF = canvasWidth * 0.032;
-    for (const base in bc) {
-        const [x, y] = bc[base];
-        ctx.save();
-        ctx.shadowColor = "#a6ff4d";
-        ctx.shadowBlur = 13;
-        ctx.globalAlpha = 0.91;
-        ctx.fillStyle = logic.base_colors[base];
-        ctx.strokeStyle = "#358c21";
-        ctx.beginPath();
-        ctx.moveTo(x, y - BASE_HALF);
-        ctx.lineTo(x + BASE_HALF, y);
-        ctx.lineTo(x, y + BASE_HALF);
-        ctx.lineTo(x - BASE_HALF, y);
-        ctx.closePath();
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.globalAlpha = 1;
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        // Label
-        ctx.font = `900 ${Math.floor(canvasWidth * BASE_LABEL_FONT_SCALE)}px 'Oswald','Arial Black',Arial,sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#18331e";
-        ctx.shadowColor = "#a6ff4d";
-        ctx.shadowBlur = 6;
-        ctx.fillText(base.toUpperCase(), x, y - BASE_HALF - 10);
-        ctx.restore();
-    }
-    // Team Logo
-    if (logoImage.complete && logoImage.width) {
-        const logoHeight = canvasHeight * 0.17;
-        const logoWidth = logoHeight * (logoImage.width / logoImage.height);
-        ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, canvasHeight * 0.05, logoWidth, logoHeight);
-    }
+ ctx.clearRect(0, 0, canvas.width, canvas.height);
+ if (backgroundImageLoaded && backgroundImage) {
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+ } else {
+  ctx.fillStyle = "#30803f";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+ }
+ const bc = logic.base_coords;
+ const mx = (bc.home[0] + bc.second[0]) / 2;
+ const my = (bc.home[1] + bc.second[1]) / 2;
+ ctx.save();
+ ctx.globalAlpha = 0.9;
+ ctx.shadowColor = "#a6ff4d";
+ ctx.shadowBlur = 17;
+ ctx.fillStyle = "#f6d89b";
+ ctx.strokeStyle = "#358c21";
+ ctx.beginPath();
+ ctx.arc(mx, my, canvasWidth * 0.021, 0, 2 * Math.PI);
+ ctx.fill();
+ ctx.stroke();
+ ctx.restore();
+ const BASE_HALF = canvasWidth * 0.032;
+ for (const base in bc) {
+  const [x, y] = bc[base];
+  ctx.save();
+  ctx.shadowColor = "#a6ff4d";
+  ctx.shadowBlur = 13;
+  ctx.globalAlpha = 0.91;
+  ctx.fillStyle = logic.base_colors[base];
+  ctx.strokeStyle = "#358c21";
+  ctx.beginPath();
+  ctx.moveTo(x, y - BASE_HALF);
+  ctx.lineTo(x + BASE_HALF, y);
+  ctx.lineTo(x, y + BASE_HALF);
+  ctx.lineTo(x - BASE_HALF, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 1;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.font = `900 ${Math.floor(canvasWidth * BASE_LABEL_FONT_SCALE)}px 'Oswald','Arial Black',Arial,sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#18331e";
+  ctx.shadowColor = "#a6ff4d";
+  ctx.shadowBlur = 6;
+  ctx.fillText(base.toUpperCase(), x, y - BASE_HALF - 10);
+  ctx.restore();
+ }
+ if (logoImage.complete && logoImage.width) {
+  const logoHeight = canvasHeight * 0.17;
+  const logoWidth = logoHeight * (logoImage.width / logoImage.height);
+  ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, canvasHeight * 0.05, logoWidth, logoHeight);
+ }
 }
 function draw_runners() {
-    for (const r of logic.runners) {
-        if (!r.isOut) {
-            const [x, y] = r.pos;
-            ctx.save();
-            ctx.shadowColor = "#a6ff4d";
-            ctx.shadowBlur = 8;
-            ctx.globalAlpha = 0.92;
-            ctx.fillStyle = "#c90019";
-            ctx.beginPath();
-            ctx.arc(x, y, canvasWidth * 0.025, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.globalAlpha = 1;
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "#a6ff4d";
-            ctx.stroke();
-            const name = r.player?.Name.toUpperCase() || "RANDOM";
-            ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "bottom";
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#18331e";
-            ctx.strokeText(name, x, y - canvasWidth * 0.03);
-            ctx.fillStyle = "#a6ff4d";
-            ctx.shadowColor = "#232a35";
-            ctx.shadowBlur = 10;
-            ctx.fillText(name, x, y - canvasWidth * 0.03);
-            ctx.restore();
-        }
-    }
+ for (const r of logic.runners) {
+  if (!r.isOut) {
+   const [x, y] = r.pos;
+    const runnerRadius = canvasWidth * 0.025;
+
+    // Part 1: Draw the outer red circle for the runner
+   ctx.save();
+   ctx.shadowColor = "#a6ff4d";
+   ctx.shadowBlur = 8;
+   ctx.globalAlpha = 0.92;
+   ctx.fillStyle = "#c90019";
+   ctx.beginPath();
+   ctx.arc(x, y, runnerRadius, 0, 2 * Math.PI);
+   ctx.fill();
+   ctx.shadowBlur = 0;
+   ctx.globalAlpha = 1;
+   ctx.lineWidth = 2;
+   ctx.strokeStyle = "#a6ff4d";
+   ctx.stroke();
+   ctx.restore();
+
+    // --- NEW: Part 2: Draw a white background circle for the logo ---
+    const whiteBgRadius = runnerRadius * 0.9; // Slightly smaller to keep a red border
+    ctx.save();
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.restore();
+    // --- END NEW PART ---
+
+    // Part 3: If the logo is loaded, draw it on top of the white background
+   if (r.logoLoaded && r.logoImage) {
+        // Size the logo to fit nicely within the white circle
+        const logoSize = whiteBgRadius * 1.8; 
+        const logoX = x - logoSize / 2;
+        const logoY = y - logoSize / 2;
+        ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
+   }
+    
+    // Part 4: Draw the player's name above the circle
+   ctx.save();
+   const name = r.player?.Name.toUpperCase() || "RANDOM";
+   ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
+   ctx.textAlign = "center";
+   ctx.textBaseline = "bottom";
+
+    const gapAboveCircle = canvasWidth * 0.015;
+    const nameBaselineY = y - runnerRadius - gapAboveCircle;
+
+   ctx.lineWidth = 4;
+   ctx.strokeStyle = "#18331e";
+   ctx.strokeText(name, x, nameBaselineY);
+   ctx.fillStyle = "#a6ff4d";
+   ctx.shadowColor = "#232a35";
+   ctx.shadowBlur = 10;
+   ctx.fillText(name, x, nameBaselineY);
+   ctx.restore();
+  }
+ }
 }
 function updateScoreboard() {
-    document.getElementById("away-score").textContent = logic.awayScore;
-    document.getElementById("home-score").textContent = logic.homeScore;
-    document.getElementById("inning-arrow").textContent = logic.topOfInning ? "▲" : "▼";
-    document.getElementById("inning-number").textContent = logic.inning;
-    document.getElementById("outs-display").textContent = `${logic.outs} OUTS`;
+ document.getElementById("away-score").textContent = logic.awayScore;
+ document.getElementById("home-score").textContent = logic.homeScore;
+ document.getElementById("inning-arrow").textContent = logic.topOfInning ? "▲" : "▼";
+ document.getElementById("inning-number").textContent = logic.inning;
+ document.getElementById("outs-display").textContent = `${logic.outs} OUTS`;
 }
 function updateMiniBases() {
-    ["home", "first", "second", "third"].forEach(base => {
-        const el = document.getElementById(`mini-base-${base}`);
+ ["home", "first", "second", "third"].forEach(base => {
+    const el = document.getElementById(`mini-base-${base}`);
+    if (el) {
         if (logic.runners.some(r => r.base === base && !r.isOut)) {
-            el.classList.add("occupied");
+          el.classList.add("occupied");
         } else {
-            el.classList.remove("occupied");
+          el.classList.remove("occupied");
         }
-    });
+    }
+ });
 }
 function update_gui() {
-    if (resizeNeeded) { resizeCanvas(); resizeNeeded = false; }
-    logic.update_flashing();
-    if (animation_gen) {
-        const next = animation_gen.next();
-        if (next.done) animation_gen = null;
-    }
-    if (redrawNeeded) {
-        draw_field();
-        draw_runners();
-        redrawNeeded = false;
-    }
-    requestAnimationFrame(update_gui);
+ if (resizeNeeded) { resizeCanvas(); resizeNeeded = false; }
+ logic.update_flashing();
+ if (animation_gen) {
+  const next = animation_gen.next();
+  if (next.done) animation_gen = null;
+ }
+ if (redrawNeeded) {
+  draw_field();
+  draw_runners();
+  redrawNeeded = false;
+ }
+ requestAnimationFrame(update_gui);
 }
 update_gui();
 setInterval(() => {
-    updateScoreboard();
-    updateMiniBases();
+ updateScoreboard();
+ updateMiniBases();
 }, DOM_UPDATE_INTERVAL);
 function moveRunners() {
-    if (animation_gen) return;
-    const steps = logic.move_all_runners();
-    if (steps) animation_gen = steps;
+ if (animation_gen) return;
+ const steps = logic.move_all_runners();
+ if (steps) animation_gen = steps;
 }
 function speedTestRunners() {
-    if (animation_gen) return;
-    logic.runners.forEach(r => { r.speed *= 3; });
-    const steps = logic.move_all_runners();
-    if (steps) animation_gen = steps;
+ if (animation_gen) return;
+ logic.runners.forEach(r => { r.speed *= 3; });
+ const steps = logic.move_all_runners();
+ if (steps) animation_gen = steps;
 }
 function resetScenario() {
-    animation_gen = null;
-    logic.reset_all();
-    logElement.innerHTML = '';
-    addAnimationLog("Scenario has been reset.");
+ animation_gen = null;
+ logic.reset_all();
+ logElement.innerHTML = '';
+ addAnimationLog("Scenario has been reset.");
 }
 function tagRunnerOut(runner) {
-    saveState();
-    runner.isOut = true;
-    addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
-    logic.recordOut();
-    redrawNeeded = true;
+ saveState();
+ runner.isOut = true;
+ addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
+ logic.recordOut();
+ redrawNeeded = true;
 }
 document.querySelectorAll(".mini-base").forEach(baseElement => {
-    baseElement.addEventListener("click", () => {
-        const base = baseElement.getAttribute("data-base");
-        logic.add_runner(base);
-    });
+ baseElement.addEventListener("click", () => {
+  const base = baseElement.getAttribute("data-base");
+  logic.add_runner(base);
+ });
 });
 undoBtn.addEventListener('click', undo);
 function handleCanvasInteraction(event) {
-    event.preventDefault();
-    let pointerX, pointerY;
-    if (event.type.startsWith("touch")) {
-        if (event.touches.length > 0) {
-            pointerX = event.touches[0].clientX;
-            pointerY = event.touches[0].clientY;
-        } else { return; }
-    } else {
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-    }
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clickX = (pointerX - rect.left) * scaleX;
-    const clickY = (pointerY - rect.top) * scaleY;
-    const clickRadius = canvasWidth * 0.03;
-    for (const runner of logic.runners) {
-        if (!runner.isOut) {
-            const [rx, ry] = runner.pos;
-            if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
-                tagRunnerOut(runner);
-                return;
-            }
-        }
-    }
-    const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
-    const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
-    if (Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
-        moveRunners();
-        return;
-    }
+ event.preventDefault();
+ let pointerX, pointerY;
+ if (event.type.startsWith("touch")) {
+  if (event.touches.length > 0) {
+   pointerX = event.touches[0].clientX;
+   pointerY = event.touches[0].clientY;
+  } else { return; }
+ } else {
+  pointerX = event.clientX;
+  pointerY = event.clientY;
+ }
+ const rect = canvas.getBoundingClientRect();
+ const scaleX = canvas.width / rect.width;
+ const scaleY = canvas.height / rect.height;
+ const clickX = (pointerX - rect.left) * scaleX;
+ const clickY = (pointerY - rect.top) * scaleY;
+ const clickRadius = canvasWidth * 0.03;
+ for (const runner of logic.runners) {
+  if (!runner.isOut) {
+   const [rx, ry] = runner.pos;
+   if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
+    tagRunnerOut(runner);
+    return;
+   }
+  }
+ }
+ const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
+ const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
+ if (Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
+  moveRunners();
+  return;
+ }
 }
 canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
@@ -793,11 +877,11 @@ window.addEventListener("resize", () => { resizeNeeded = true; });
 const containerObserver = new MutationObserver(() => { resizeNeeded = true; });
 containerObserver.observe(container, { attributes: true, attributeFilter: ['style', 'class'] });
 document.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT') return;
-    if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); moveRunners(); }
-    else if (e.key === "Enter") { moveRunners(); }
-    else if (e.key === "Escape") { e.preventDefault(); resetScenario(); }
-    else if (e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+ if (e.target.tagName === 'INPUT') return;
+ if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); moveRunners(); }
+ else if (e.key === "Enter") { moveRunners(); }
+ else if (e.key === "Escape") { e.preventDefault(); resetScenario(); }
+ else if (e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
 });
 </script>
 </body>
