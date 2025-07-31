@@ -1,108 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TRIPLE PLAY 1.0</title>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TRIPLE PLAY 1.0</title>
+  <style>
 :root {
- --tv-blue: #212b47;
- --tv-dark: #131820;
- --tv-gold: #ffe066;
- --tv-white: #f4f5fa;
- --tv-gray: #1a1c26;
- --tv-green: #2ecc40;
- --tv-lime: #a6ff4d;
- --tv-red: #d81c2b;
- --tv-shadow: 0 6px 32px #0008;
+  --tv-blue: #212b47;
+  --tv-dark: #131820;
+  --tv-gold: #ffe066;
+  --tv-white: #f4f5fa;
+  --tv-gray: #1a1c26;
+  --tv-green: #2ecc40;
+  --tv-lime: #a6ff4d;
+  --tv-red: #d81c2b;
+  --tv-shadow: 0 6px 32px #0008;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
- font-family: 'Roboto', 'Arial', sans-serif;
- background: linear-gradient(135deg, #0b1623 0%, #24365a 100%);
- display: flex; justify-content: center; align-items: center; min-height: 100vh;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  background: linear-gradient(135deg, #0b1623 0%, #24365a 100%);
+  display: flex; justify-content: center; align-items: center; min-height: 100vh;
 }
 .main-container {
- min-height: 100vh;
- width: 100vw;
- max-width: 100vw;
- background: linear-gradient(120deg, #232a35 20%, #101522 100%);
- display: flex;
- flex-direction: column;
- align-items: center;
- overflow: auto;
- position: relative;
- padding: 0;
+  min-height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  background: linear-gradient(120deg, #232a35 20%, #101522 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  position: relative;
+  padding: 0;
 }
 #game-container {
- width: 100%;
- max-width: 640px;
- margin: 0 auto;
- background: none;
- display: flex;
- flex-direction: column;
- align-items: center;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 canvas {
- border-radius: 18px;
- border: 4px solid var(--tv-blue);
- background: #125b1b radial-gradient(ellipse 130% 90% at 55% 65%, #30803f 50%, #18331e 90%);
- width: 100%;
- max-width: 630px;
- aspect-ratio: 1/1;
- margin-bottom: 18px;
- box-shadow: var(--tv-shadow);
- display: block;
+  border-radius: 18px;
+  border: 4px solid var(--tv-blue);
+  background: #125b1b radial-gradient(ellipse 130% 90% at 55% 65%, #30803f 50%, #18331e 90%);
+  width: 100%;
+  max-width: 630px;
+  aspect-ratio: 1/1;
+  margin-bottom: 18px;
+  box-shadow: var(--tv-shadow);
+  display: block;
 }
 #action-buttons {
- width: 100%;
- display: flex;
- flex-wrap: wrap;
- justify-content: center;
- gap: 10px;
- margin-bottom: 8px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 button {
- border: none;
- outline: none;
- border-radius: 32px;
- padding: 12px 26px;
- background: linear-gradient(180deg, #e9eefa 90%, #b5c3e2 100%);
- color: #16203a;
- font-weight: 900;
- font-family: 'Segoe UI', 'Arial', sans-serif;
- font-size: 1.05em;
- letter-spacing: 0.06em;
- box-shadow: 0 2.5px 18px #0002, 0 1.5px 0px #fff3 inset;
- cursor: pointer;
- transition: background 0.15s, color 0.15s, box-shadow 0.18s, outline 0.12s;
+  border: none;
+  outline: none;
+  border-radius: 32px;
+  padding: 12px 26px;
+  background: linear-gradient(180deg, #e9eefa 90%, #b5c3e2 100%);
+  color: #16203a;
+  font-weight: 900;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  font-size: 1.05em;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2.5px 18px #0002, 0 1.5px 0px #fff3 inset;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.18s, outline 0.12s;
 }
 button:active {
- background: linear-gradient(180deg, #d1eaff 60%, #a0bde4 100%);
- color: #008f24;
+  background: linear-gradient(180deg, #d1eaff 60%, #a0bde4 100%);
+  color: #008f24;
 }
 button:hover, button:focus-visible {
- background: linear-gradient(180deg, var(--tv-lime) 70%, #fff9e1 100%);
- color: #232a35;
- box-shadow: 0 4px 22px var(--tv-lime), 0 1.5px 0px #fff5 inset;
- outline: 2px solid var(--tv-green);
- outline-offset: 1.5px;
+  background: linear-gradient(180deg, var(--tv-lime) 70%, #fff9e1 100%);
+  color: #232a35;
+  box-shadow: 0 4px 22px var(--tv-lime), 0 1.5px 0px #fff5 inset;
+  outline: 2px solid var(--tv-green);
+  outline-offset: 1.5px;
 }
 #undo-btn {
- background: linear-gradient(180deg, #1d293e 90%, #0b1c3a 100%);
- color: #fff;
- font-weight: bold;
- border: 2px solid var(--tv-gold);
- margin-right: 10px;
+  background: linear-gradient(180deg, #1d293e 90%, #0b1c3a 100%);
+  color: #fff;
+  font-weight: bold;
+  border: 2px solid var(--tv-gold);
+  margin-right: 10px;
 }
 #undo-btn:hover, #undo-btn:focus-visible {
- background: linear-gradient(180deg, #2a3550 90%, #253048 100%);
- color: var(--tv-lime);
- box-shadow: 0 4px 20px var(--tv-green), 0 1.5px 0px #fff8 inset;
- outline: 2.5px solid var(--tv-green);
+  background: linear-gradient(180deg, #2a3550 90%, #253048 100%);
+  color: var(--tv-lime);
+  box-shadow: 0 4px 20px var(--tv-green), 0 1.5px 0px #fff8 inset;
+  outline: 2.5px solid var(--tv-green);
 }
-#undo-btn:disabled { opacity: 0.4; color: #dbe5ff; border-color: #555; background: #444; cursor: not-allowed; }
-
+#undo-btn:disabled {
+  opacity: 0.4; color: #dbe5ff; border-color: #555; background: #444; cursor: not-allowed;
+}
 #scoreboard-container {
  width: 99%;
  max-width: 470px;
@@ -219,72 +220,93 @@ button:hover, button:focus-visible {
  button { font-size: 0.95em; padding: 9px 13px; }
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
-</style>
-<link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Oswald:700&display=swap" rel="stylesheet">
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Oswald:700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="main-container">
- <div id="game-container">
-  <canvas id="baseballCanvas"></canvas>
-  <div id="action-buttons">
-   <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
-   <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
-   <button onclick="resetScenario()">RESET</button>
-   <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
-  </div>
-  <div id="scoreboard-container">
-   <div class="scoreboard-section scoreboard-left">
-    <span id="away-team-name">AWAY</span>
-    <span id="away-score">0</span>
-   </div>
-   <div class="scoreboard-section scoreboard-middle">
-    <div class="inning-display">
-     <span id="inning-arrow">▲</span>
-     <span id="inning-number">1</span>
+  <div class="main-container">
+    <div id="game-container">
+      <canvas id="baseballCanvas"></canvas>
+      <div id="action-buttons">
+        <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
+        <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
+        <button onclick="resetScenario()">RESET</button>
+        <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
+        <button id="toggle-speed-btn">USE LITTLE LEAGUE SPEEDS</button>
+      </div>
+      <div id="scoreboard-container">
+        <div class="scoreboard-section scoreboard-left">
+          <span id="away-team-name">AWAY</span>
+          <span id="away-score">0</span>
+        </div>
+        <div class="scoreboard-section scoreboard-middle">
+          <div class="inning-display">
+            <span id="inning-arrow">▲</span>
+            <span id="inning-number">1</span>
+          </div>
+          <div id="outs-display">0 OUTS</div>
+        </div>
+        <div class="scoreboard-section scoreboard-right">
+          <span id="home-team-name">HOME</span>
+          <span id="home-score">0</span>
+        </div>
+      </div>
+      <div id="mini-base-container">
+        <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
+        <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
+        <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
+        <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
+      </div>
+      <div id="animation-log"></div>
+      <div style="display: flex; justify-content: center; margin-top:7px;">
+        <div style="text-align:center; margin: 0 10px;">
+          <span style="color:white; display:block;">ESP32-1</span>
+          <div id="status-display-1" class="status-indicator status-connecting"></div>
+        </div>
+        <div style="text-align:center; margin: 0 10px;">
+          <span style="color:white; display:block;">ESP32-2</span>
+          <div id="status-display-2" class="status-indicator status-connecting"></div>
+        </div>
+        <div style="text-align:center; margin: 0 10px;">
+          <span style="color:white; display:block;">ESP32-3</span>
+          <div id="status-display-3" class="status-indicator status-connecting"></div>
+        </div>
+        <div style="text-align:center; margin: 0 10px;">
+          <span style="color:white; display:block;">ESP32-4</span>
+          <div id="status-display-4" class="status-indicator status-connecting"></div>
+        </div>
+      </div>
     </div>
-    <div id="outs-display">0 OUTS</div>
-   </div>
-   <div class="scoreboard-section scoreboard-right">
-    <span id="home-team-name">HOME</span>
-    <span id="home-score">0</span>
-   </div>
   </div>
-  <div id="mini-base-container">
-   <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
-   <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
-   <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
-   <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
-  </div>
-  <div id="animation-log"></div>
-   <div style="display: flex; justify-content: center; margin-top:7px;">
-   <div style="text-align:center; margin: 0 10px;">
-    <span style="color:white; display:block;">ESP32-1</span>
-    <div id="status-display-1" class="status-indicator status-connecting"></div>
-   </div>
-   <div style="text-align:center; margin: 0 10px;">
-    <span style="color:white; display:block;">ESP32-2</span>
-    <div id="status-display-2" class="status-indicator status-connecting"></div>
-   </div>
-   <div style="text-align:center; margin: 0 10px;">
-    <span style="color:white; display:block;">ESP32-3</span>
-    <div id="status-display-3" class="status-indicator status-connecting"></div>
-   </div>
-   <div style="text-align:center; margin: 0 10px;">
-    <span style="color:white; display:block;">ESP32-4</span>
-    <div id="status-display-4" class="status-indicator status-connecting"></div>
-   </div>
-  </div>
- </div>
-</div>
-<script>
+  <script>
 const DEBUG_MODE = true;
 const DEVICE_PIXEL_RATIO_CAP = 2;
 const DOM_UPDATE_INTERVAL = 250;
-const BASE_SPEED = 1 / 15;
 const BASE_LABEL_FONT_SCALE = 0.02;
 const PLAYER_NAME_FONT_SCALE = 0.035;
 
-// FIX: The lookup map is not needed and was removed.
+const GAME_FPS = 60;
+const SPEED_PRESETS = {
+  MLB: {
+    name: "MLB",
+    homeToFirst: 4.3,    // seconds
+    baseToBase: 3.3,     // seconds
+    minTime: 3.9,
+    maxTime: 4.7
+  },
+  LITTLE_LEAGUE: {
+    name: "Little League",
+    homeToFirst: 5.7,    // seconds
+    baseToBase: 5.2,     // seconds
+    minTime: 5.0,
+    maxTime: 6.7
+  }
+};
+let currentSpeedPreset = SPEED_PRESETS.MLB;
+
+// Helper functions
+function calcSpeed(seconds) { return 1 / (seconds * GAME_FPS); }
+function lerp(a, b, t) { return a + (b - a) * t; }
 
 let allPlayers = [];
 const container = document.getElementById("game-container");
@@ -297,16 +319,14 @@ function saveState() {
   undoStack.push(logic.getState());
   undoBtn.disabled = false;
 }
-
 function restoreState(state) {
   if (!state) return;
-  logic.setState(state); 
+  logic.setState(state);
   logElement.innerHTML = state.logHTML || "";
   updateScoreboard();
   updateMiniBases();
   redrawNeeded = true;
 }
-
 function undo() {
   if (undoStack.length === 0) return;
   restoreState(undoStack.pop());
@@ -346,50 +366,55 @@ function addAnimationLog(message) {
  logElement.scrollTop = logElement.scrollHeight;
  if(DEBUG_MODE) console.log(message.replace(/<[^>]*>?/gm, ''));
 }
+
+// ------ RUNNER CLASS WITH REALISTIC SPEEDS ------
 class Runner {
- constructor(pos, base_name, target, player) {
-  this.pos = pos;
-  this.base = base_name;
-  this.target = target;
-  this.player = player || { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
-  let s = parseInt(this.player.Speed || 70);
-  if (isNaN(s)) s = 70;
-  this.speed = BASE_SPEED * (0.04 + (s / 99) * 0.06);
-  this.current_fraction = 0;
-  this.isOut = false;
-  this.isMoving = false;
-  this.logoImage = null;
-  this.logoLoaded = false;
-  this.loadLogo();
- }
+  constructor(pos, base_name, target, player) {
+    this.pos = pos;
+    this.base = base_name;
+    this.target = target;
+    this.player = player || { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
 
- loadLogo() {
-    // FIX: Use the full team name directly as the key, which matches the JSON structure.
+    // Speed based on MLB/Little League & player rating
+    let t = (99 - (parseInt(this.player.Speed) || 70)) / 99;
+    let runTime;
+    if (base_name === "home" && target === "first")
+      runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+    else
+      runTime = currentSpeedPreset.baseToBase;
+    this.speed = calcSpeed(runTime);
+
+    this.current_fraction = 0;
+    this.isOut = false;
+    this.isMoving = false;
+    this.logoImage = null;
+    this.logoLoaded = false;
+    this.loadLogo();
+  }
+  loadLogo() {
     const fullTeamName = this.player["Team Name"];
-
-   if (fullTeamName && teamLogos[fullTeamName]) {
-     const svgText = teamLogos[fullTeamName];
-     const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
-     
+    if (fullTeamName && teamLogos[fullTeamName]) {
+      const svgText = teamLogos[fullTeamName];
+      const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
       const img = new Image();
-     img.onload = () => {
-       this.logoLoaded = true;
-       redrawNeeded = true;
-     };
-     img.onerror = () => {
-       console.error(`Failed to load logo image for ${fullTeamName}`);
-     };
-     img.src = svgUrl;
-     this.logoImage = img;
-   } else {
-        if(DEBUG_MODE && fullTeamName) {
-            console.log(`Logo not found for team: "${fullTeamName}"`);
-        }
+      img.onload = () => {
+        this.logoLoaded = true;
+        redrawNeeded = true;
+      };
+      img.onerror = () => {
+        console.error(`Failed to load logo image for ${fullTeamName}`);
+      };
+      img.src = svgUrl;
+      this.logoImage = img;
+    } else {
+      if (DEBUG_MODE && fullTeamName) {
+        console.log(`Logo not found for team: "${fullTeamName}"`);
+      }
     }
- }
-
- clone() { return new Runner([...this.pos], this.base, this.target, {...this.player}); }
+  }
+  clone() { return new Runner([...this.pos], this.base, this.target, { ...this.player }); }
 }
+
 class GameLogic {
  constructor(base_coords) {
   this.base_coords = base_coords;
@@ -583,17 +608,17 @@ class GameLogic {
   }).bind(this)(this, transitions);
  }
 
- getState() {
+getState() {
   return {
    base_coords: this.base_coords,
    base_states: this.base_states,
    base_colors: this.base_colors,
    last_toggle_time: this.last_toggle_time,
    dynamic_flash_ms: this.dynamic_flash_ms,
-   runners: this.runners.map(r => ({ 
-     pos: r.pos, 
-     base: r.base, 
-     target: r.target, 
+   runners: this.runners.map(r => ({
+     pos: r.pos,
+     base: r.base,
+     target: r.target,
      player: r.player,
      speed: r.speed,
      current_fraction: r.current_fraction,
@@ -609,13 +634,14 @@ class GameLogic {
   };
  }
 
- setState(state) {
+setState(state) {
   Object.assign(this, state);
-  this.runners = state.runners.map(rData => 
+  this.runners = state.runners.map(rData =>
     new Runner(rData.pos, rData.base, rData.target, rData.player)
   );
  }
 }
+
 const canvas = document.getElementById("baseballCanvas");
 const ctx = canvas.getContext("2d");
 let canvasWidth = 600, canvasHeight = 600;
@@ -712,7 +738,7 @@ function draw_runners() {
    const [x, y] = r.pos;
     const runnerRadius = canvasWidth * 0.025;
 
-    // Part 1: Draw the outer red circle for the runner
+   // Outer red circle for runner
    ctx.save();
    ctx.shadowColor = "#a6ff4d";
    ctx.shadowBlur = 8;
@@ -728,35 +754,30 @@ function draw_runners() {
    ctx.stroke();
    ctx.restore();
 
-    // --- NEW: Part 2: Draw a white background circle for the logo ---
-    const whiteBgRadius = runnerRadius * 0.9; // Slightly smaller to keep a red border
+    // White background circle for logo
+    const whiteBgRadius = runnerRadius * 0.9;
     ctx.save();
     ctx.fillStyle = 'white';
     ctx.beginPath();
     ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
-    // --- END NEW PART ---
 
-    // Part 3: If the logo is loaded, draw it on top of the white background
+    // Logo image
    if (r.logoLoaded && r.logoImage) {
-        // Size the logo to fit nicely within the white circle
-        const logoSize = whiteBgRadius * 1.8; 
+        const logoSize = whiteBgRadius * 1.8;
         const logoX = x - logoSize / 2;
         const logoY = y - logoSize / 2;
         ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
    }
-    
-    // Part 4: Draw the player's name above the circle
+    // Player name above
    ctx.save();
    const name = r.player?.Name.toUpperCase() || "RANDOM";
    ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
    ctx.textAlign = "center";
    ctx.textBaseline = "bottom";
-
-    const gapAboveCircle = canvasWidth * 0.015;
-    const nameBaselineY = y - runnerRadius - gapAboveCircle;
-
+   const gapAboveCircle = canvasWidth * 0.015;
+   const nameBaselineY = y - runnerRadius - gapAboveCircle;
    ctx.lineWidth = 4;
    ctx.strokeStyle = "#18331e";
    ctx.strokeText(name, x, nameBaselineY);
@@ -883,6 +904,30 @@ document.addEventListener('keydown', e => {
  else if (e.key === "Escape") { e.preventDefault(); resetScenario(); }
  else if (e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
 });
-</script>
+
+// -------- SPEED MODE TOGGLE BUTTON --------
+const toggleSpeedBtn = document.getElementById("toggle-speed-btn");
+toggleSpeedBtn.addEventListener("click", () => {
+  if (currentSpeedPreset === SPEED_PRESETS.MLB) {
+    currentSpeedPreset = SPEED_PRESETS.LITTLE_LEAGUE;
+    toggleSpeedBtn.textContent = "USE MLB SPEEDS";
+    addAnimationLog("Switched to Little League running speeds.");
+  } else {
+    currentSpeedPreset = SPEED_PRESETS.MLB;
+    toggleSpeedBtn.textContent = "USE LITTLE LEAGUE SPEEDS";
+    addAnimationLog("Switched to MLB running speeds.");
+  }
+  // Update speeds of all current runners
+  logic.runners.forEach(runner => {
+    let t = (99 - (parseInt(runner.player.Speed) || 70)) / 99;
+    let runTime;
+    if (runner.base === "home" && runner.target === "first")
+      runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+    else
+      runTime = currentSpeedPreset.baseToBase;
+    runner.speed = calcSpeed(runTime);
+  });
+});
+  </script>
 </body>
 </html>
