@@ -225,80 +225,92 @@ button:hover, button:focus-visible {
 </head>
 <body>
  <div class="main-container">
-  <div id="game-container">
-   <canvas id="baseballCanvas"></canvas>
-   <div id="action-buttons">
-    <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
-    <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
-    <button onclick="resetScenario()">RESET</button>
-    <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
-    <button id="toggle-speed-btn">USE LITTLE LEAGUE SPEEDS</button>
+ <div id="game-container">
+  <canvas id="baseballCanvas"></canvas>
+  <div id="action-buttons">
+  <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
+  <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
+  <button onclick="resetScenario()">RESET</button>
+  <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
+  <button id="toggle-speed-btn">USE LITTLE LEAGUE SPEEDS</button>
+  </div>
+  <div id="scoreboard-container">
+  <div class="scoreboard-section scoreboard-left">
+   <span id="away-team-name">AWAY</span>
+   <span id="away-score">0</span>
+  </div>
+  <div class="scoreboard-section scoreboard-middle">
+   <div class="inning-display">
+   <span id="inning-arrow">▲</span>
+   <span id="inning-number">1</span>
    </div>
-   <div id="scoreboard-container">
-    <div class="scoreboard-section scoreboard-left">
-     <span id="away-team-name">AWAY</span>
-     <span id="away-score">0</span>
-    </div>
-    <div class="scoreboard-section scoreboard-middle">
-     <div class="inning-display">
-      <span id="inning-arrow">▲</span>
-      <span id="inning-number">1</span>
-     </div>
-     <div id="outs-display">0 OUTS</div>
-    </div>
-    <div class="scoreboard-section scoreboard-right">
-     <span id="home-team-name">HOME</span>
-     <span id="home-score">0</span>
-    </div>
-   </div>
-   <div id="mini-base-container">
-    <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
-    <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
-    <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
-    <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
-   </div>
-   <div id="animation-log"></div>
-   <div style="display: flex; justify-content: center; margin-top:7px;">
-    <div style="text-align:center; margin: 0 10px;">
-     <span style="color:white; display:block;">ESP32-1</span>
-     <div id="status-display-1" class="status-indicator status-connecting"></div>
-    </div>
-    <div style="text-align:center; margin: 0 10px;">
-     <span style="color:white; display:block;">ESP32-2</span>
-     <div id="status-display-2" class="status-indicator status-connecting"></div>
-    </div>
-    <div style="text-align:center; margin: 0 10px;">
-     <span style="color:white; display:block;">ESP32-3</span>
-     <div id="status-display-3" class="status-indicator status-connecting"></div>
-    </div>
-    <div style="text-align:center; margin: 0 10px;">
-     <span style="color:white; display:block;">ESP32-4</span>
-     <div id="status-display-4" class="status-indicator status-connecting"></div>
-    </div>
-   </div>
+   <div id="outs-display">0 OUTS</div>
+  </div>
+  <div class="scoreboard-section scoreboard-right">
+   <span id="home-team-name">HOME</span>
+   <span id="home-score">0</span>
+  </div>
+  </div>
+  <div id="mini-base-container">
+  <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
+  <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
+  <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
+  <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
+  </div>
+  <div id="animation-log"></div>
+  <div style="display: flex; justify-content: center; margin-top:7px;">
+  <div style="text-align:center; margin: 0 10px;">
+   <span style="color:white; display:block;">ESP32-1</span>
+   <div id="status-display-1" class="status-indicator status-connecting"></div>
+  </div>
+  <div style="text-align:center; margin: 0 10px;">
+   <span style="color:white; display:block;">ESP32-2</span>
+   <div id="status-display-2" class="status-indicator status-connecting"></div>
+  </div>
+  <div style="text-align:center; margin: 0 10px;">
+   <span style="color:white; display:block;">ESP32-3</span>
+   <div id="status-display-3" class="status-indicator status-connecting"></div>
+  </div>
+  <div style="text-align:center; margin: 0 10px;">
+   <span style="color:white; display:block;">ESP32-4</span>
+   <div id="status-display-4" class="status-indicator status-connecting"></div>
+  </div>
   </div>
  </div>
+ </div>
  <script>
+// --- GLOBAL CONFIGURATION ---
 const DEBUG_MODE = true;
 const DEVICE_PIXEL_RATIO_CAP = 2;
 const DOM_UPDATE_INTERVAL = 250;
 const BASE_LABEL_FONT_SCALE = 0.02;
 const PLAYER_NAME_FONT_SCALE = 0.035;
 const GAME_FPS = 60;
+
+// --- ESP32 WEBSOCKET CONFIGURATION ---
+// IMPORTANT: Change these to the IP addresses of YOUR ESP32 controllers.
+const ESP32_DEVICES = [
+    { name: "ESP32-1", ip: "192.168.1.100", id: "status-display-1" },
+    { name: "ESP32-2", ip: "192.168.1.101", id: "status-display-2" },
+    { name: "ESP32-3", ip: "192.168.1.102", id: "status-display-3" },
+    { name: "ESP32-4", ip: "192.168.1.103", id: "status-display-4" }
+];
+let esp_websockets = {}; // Store connections by IP address
+
 const SPEED_PRESETS = {
  MLB: {
-  name: "MLB",
-  homeToFirst: 4.3,
-  baseToBase: 3.3,
-  minTime: 3.9,
-  maxTime: 4.7
+ name: "MLB",
+ homeToFirst: 4.3,
+ baseToBase: 3.3,
+ minTime: 3.9,
+ maxTime: 4.7
  },
  LITTLE_LEAGUE: {
-  name: "Little League",
-  homeToFirst: 5.7,
-  baseToBase: 5.2,
-  minTime: 5.0,
-  maxTime: 6.7
+ name: "Little League",
+ homeToFirst: 5.7,
+ baseToBase: 5.2,
+ minTime: 5.0,
+ maxTime: 6.7
  }
 };
 let currentSpeedPreset = SPEED_PRESETS.MLB;
@@ -335,8 +347,8 @@ function undo() {
 fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/team_logos.json')
  .then(resp => resp.json())
  .then(data => {
-  teamLogos = data;
-  addAnimationLog(`Team logos loaded: ${Object.keys(teamLogos).length} teams.`);
+ teamLogos = data;
+ addAnimationLog(`Team logos loaded: ${Object.keys(teamLogos).length} teams.`);
  })
  .catch(err => addAnimationLog("ERROR: Failed to load team logos from GitHub."));
 
@@ -367,46 +379,46 @@ function addAnimationLog(message) {
 
 class Runner {
  constructor(pos, base_name, target, player) {
-  this.pos = pos;
-  this.base = base_name;
-  this.target = target;
-  this.player = player || { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
+ this.pos = pos;
+ this.base = base_name;
+ this.target = target;
+ this.player = player || { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
 
-  let t = (99 - (parseInt(this.player.Speed) || 70)) / 99;
-  let runTime;
-  if (base_name === "home" && target === "first")
-   runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
-  else
-   runTime = currentSpeedPreset.baseToBase;
-  this.speed = calcSpeed(runTime);
+ let t = (99 - (parseInt(this.player.Speed) || 70)) / 99;
+ let runTime;
+ if (base_name === "home" && target === "first")
+  runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+ else
+  runTime = currentSpeedPreset.baseToBase;
+ this.speed = calcSpeed(runTime);
 
-  this.current_fraction = 0;
-  this.isOut = false;
-  this.isMoving = false;
-  this.logoImage = null;
-  this.logoLoaded = false;
-  this.loadLogo();
+ this.current_fraction = 0;
+ this.isOut = false;
+ this.isMoving = false;
+ this.logoImage = null;
+ this.logoLoaded = false;
+ this.loadLogo();
  }
  loadLogo() {
-  const fullTeamName = this.player["Team Name"];
-  if (fullTeamName && teamLogos[fullTeamName]) {
-   const svgText = teamLogos[fullTeamName];
-   const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
-   const img = new Image();
-   img.onload = () => {
-    this.logoLoaded = true;
-    redrawNeeded = true;
-   };
-   img.onerror = () => {
-    console.error(`Failed to load logo image for ${fullTeamName}`);
-   };
-   img.src = svgUrl;
-   this.logoImage = img;
-  } else {
-   if (DEBUG_MODE && fullTeamName) {
-    console.log(`Logo not found for team: "${fullTeamName}"`);
-   }
+ const fullTeamName = this.player["Team Name"];
+ if (fullTeamName && teamLogos[fullTeamName]) {
+  const svgText = teamLogos[fullTeamName];
+  const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
+  const img = new Image();
+  img.onload = () => {
+  this.logoLoaded = true;
+  redrawNeeded = true;
+  };
+  img.onerror = () => {
+  console.error(`Failed to load logo image for ${fullTeamName}`);
+  };
+  img.src = svgUrl;
+  this.logoImage = img;
+ } else {
+  if (DEBUG_MODE && fullTeamName) {
+  console.log(`Logo not found for team: "${fullTeamName}"`);
   }
+ }
  }
  clone() { return new Runner([...this.pos], this.base, this.target, { ...this.player }); }
 }
@@ -421,33 +433,59 @@ class GameLogic {
  this.runners = []; this.homeScore = 0; this.awayScore = 0;
  this.outs = 0; this.inning = 1; this.topOfInning = true;
  for (const name in base_coords) {
-  this.base_states[name] = this.OFF;
-  this.base_colors[name] = "#f4f5fa"; // Default white
-  this.last_toggle_time[name] = performance.now();
-  this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
+ this.base_states[name] = this.OFF;
+ this.base_colors[name] = "#f4f5fa"; // Default white
+ this.last_toggle_time[name] = performance.now();
+ this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
  }
  }
+
+ // --- ESP32 Communication Method ---
+ sendAllBaseStates() {
+    const statePayload = {
+        home: this.base_states.home,
+        first: this.base_states.first,
+        second: this.base_states.second,
+        third: this.base_states.third
+    };
+    const jsonString = JSON.stringify(statePayload);
+
+    // Loop through all stored websocket connections
+    for (const ip in esp_websockets) {
+        const ws = esp_websockets[ip];
+        // Only send if the websocket exists and is connected
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(jsonString);
+            if (DEBUG_MODE) console.log(`Sent to ${ip}:`, jsonString);
+        }
+    }
+ }
+
+ // --- Base State-Changing Methods (Now with ESP32 sync) ---
  set_base_default(base_name) {
  this.base_states[base_name] = this.OFF;
  this.base_colors[base_name] = "#f4f5fa";
  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
  redrawNeeded = true;
+ this.sendAllBaseStates(); // Sync with ALL connected ESP32s
  }
  set_base_flashing(base_name) {
  this.base_states[base_name] = this.FLASHING;
  if (!this.last_toggle_time[base_name]) this.last_toggle_time[base_name] = performance.now();
- // MODIFIED: Check against the new flashing colors (green and white)
  if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#f4f5fa") {
-  this.base_colors[base_name] = "#2ecc40";
+ this.base_colors[base_name] = "#2ecc40";
  }
  redrawNeeded = true;
+ this.sendAllBaseStates(); // Sync with ALL connected ESP32s
  }
  set_base_red(base_name) {
  this.base_states[base_name] = this.RED;
  this.base_colors[base_name] = "#d81c2b";
  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
  redrawNeeded = true;
+ this.sendAllBaseStates(); // Sync with ALL connected ESP32s
  }
+
  clearBases() {
  this.runners = [];
  for (const b in this.base_states) this.set_base_default(b);
@@ -458,31 +496,31 @@ class GameLogic {
  this.outs++;
  addAnimationLog(`Out recorded! Total outs: ${this.outs}`);
  if (this.outs >= 3) {
-  this.outs = 0;
-  addAnimationLog("Three outs! Switching half-inning...");
-  this.nextInning();
+ this.outs = 0;
+ addAnimationLog("Three outs! Switching half-inning...");
+ this.nextInning();
  }
  redrawNeeded = true;
  }
  nextInning() {
  if (this.topOfInning) {
-  this.topOfInning = false;
-  addAnimationLog(`Now entering bottom of inning ${this.inning}`);
+ this.topOfInning = false;
+ addAnimationLog(`Now entering bottom of inning ${this.inning}`);
  } else {
-  this.inning++;
-  this.topOfInning = true;
-  addAnimationLog(`Now entering top of inning ${this.inning}`);
+ this.inning++;
+ this.topOfInning = true;
+ addAnimationLog(`Now entering top of inning ${this.inning}`);
  }
  this.clearBases();
  redrawNeeded = true;
  }
  scoreRun() {
  if (this.topOfInning) {
-  this.awayScore++;
-  addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
+ this.awayScore++;
+ addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
  } else {
-  this.homeScore++;
-  addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
+ this.homeScore++;
+ addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
  }
  redrawNeeded = true;
  }
@@ -496,14 +534,14 @@ class GameLogic {
  add_runner(base_name) {
  saveState();
  if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
-  addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} already occupied.`);
-  return;
+ addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} already occupied.`);
+ return;
  }
  const pos = this.get_runner_position(base_name);
  const target = this.get_next_base(base_name);
  let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
  if (allPlayers.length > 0) {
-  player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+ player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
  }
  const runner = new Runner(pos, base_name, target, player);
  this.runners.push(runner);
@@ -514,189 +552,182 @@ class GameLogic {
  get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
  get_next_base(current_base) {
  switch (current_base) {
-  case "home": return "first";
-  case "first": return "second";
-  case "second": return "third";
-  case "third": return "home";
-  default: "home";
+ case "home": return "first";
+ case "first": return "second";
+ case "second": return "third";
+ case "third": return "home";
+ default: "home";
  }
  }
  remove_runner_from_base(runner) {
  const idx = this.runners.indexOf(runner);
  if (idx > -1) {
-  this.runners.splice(idx, 1);
-  redrawNeeded = true;
+ this.runners.splice(idx, 1);
+ redrawNeeded = true;
  }
  }
  update_flashing() {
  const now = performance.now();
  for (const base_name in this.base_states) {
-  if (this.base_states[base_name] === this.FLASHING) {
-  const elapsed = now - this.last_toggle_time[base_name];
-  if (elapsed >= this.dynamic_flash_ms[base_name]) {
-   // MODIFIED: Toggle between green and the default white color
-   this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
-   this.last_toggle_time[base_name] = now;
-   redrawNeeded = true;
-  }
-  }
+ if (this.base_states[base_name] === this.FLASHING) {
+ const elapsed = now - this.last_toggle_time[base_name];
+ if (elapsed >= this.dynamic_flash_ms[base_name]) {
+  this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
+  this.last_toggle_time[base_name] = now;
+  redrawNeeded = true;
+ }
+ }
  }
  }
  move_all_runners() {
-  saveState();
-  const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
-  if (!runnersOnBase.length) {
-    addAnimationLog("No runners to move.");
-    return null;
+ saveState();
+ const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
+ if (!runnersOnBase.length) {
+  addAnimationLog("No runners to move.");
+  return null;
+ }
+ addAnimationLog("Moving all runners...");
+
+ const transitions = runnersOnBase.map((runner) => {
+  runner.isMoving = true;
+  addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
+  return {
+   runner,
+   start: [...runner.pos],
+   end: this.base_coords[runner.target]
+  };
+ });
+
+ if (!transitions.length) {
+  this.runners.forEach(r => r.isMoving = false);
+  addAnimationLog("No runners eligible to move.");
+  return null;
+ }
+
+ for (const base_name in this.base_states) {
+  const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
+  const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
+  if (isBeingAdvancedTo) {
+   this.set_base_flashing(base_name);
+  } else if (isOccupiedAndStaying) {
+   this.set_base_red(base_name);
+  } else {
+   this.set_base_default(base_name);
   }
-  addAnimationLog("Moving all runners...");
+ }
 
-  const transitions = runnersOnBase.map((runner) => {
-    runner.isMoving = true;
-    addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
-    return {
-      runner,
-      start: [...runner.pos],
-      end: this.base_coords[runner.target]
-    };
-  });
-
-  if (!transitions.length) {
-    this.runners.forEach(r => r.isMoving = false);
-    addAnimationLog("No runners eligible to move.");
-    return null;
-  }
-
-  for (const base_name in this.base_states) {
-    const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
-    const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
-    if (isBeingAdvancedTo) {
-      this.set_base_flashing(base_name);
-    } else if (isOccupiedAndStaying) {
-      this.set_base_red(base_name);
-    } else {
-      this.set_base_default(base_name);
+ return (function* (logic, transitions) {
+  let allFinished = false;
+  while (!allFinished) {
+   allFinished = true;
+   for (let i = transitions.length - 1; i >= 0; i--) {
+    if (transitions[i].runner.isOut) {
+     transitions.splice(i, 1);
     }
-  }
-
-  return (function* (logic, transitions) {
-    let allFinished = false;
-    while (!allFinished) {
-      allFinished = true;
-      for (let i = transitions.length - 1; i >= 0; i--) {
-        if (transitions[i].runner.isOut) {
-          transitions.splice(i, 1);
-        }
-      }
-      
-      for (const t of transitions) {
-        const runner = t.runner;
-        if (runner.isOut) continue;
-        if (runner.current_fraction < 1) {
-          allFinished = false;
-          const [sx, sy] = t.start;
-          const [ex, ey] = t.end;
-          runner.current_fraction += runner.speed;
-          const frac = Math.min(runner.current_fraction, 1);
-          runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
-        }
-      }
-
-        // --- MODIFICATION FOR DYNAMIC FLASHING ---
-        // This block now runs once per frame, after all runner positions are updated.
-        // It ensures the flash rate is always based on the CLOSEST runner to a base.
-        for (const base_name in logic.base_states) {
-            if (logic.base_states[base_name] === logic.FLASHING) {
-                const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
-                
-                if (runnersApproaching.length > 0) {
-                    // Find the runner with the maximum progress (closest to the base)
-                    const closestRunner = runnersApproaching.reduce((prev, curr) => 
-                        (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
-                    );
-
-                    const frac = Math.min(closestRunner.runner.current_fraction, 1);
-                    const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
-                    const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
-                    logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
-                }
-            }
-        }
-        // --- END MODIFICATION ---
-
-      redrawNeeded = true;
-      yield;
-    }
-
-    let basesNow = {};
-    for (const t of transitions) {
-      const runner = t.runner;
-      if (runner.isOut) continue;
-      
-      runner.base = runner.target;
-      runner.target = logic.get_next_base(runner.base);
-      runner.current_fraction = 0;
-      runner.isMoving = false;
-      logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
-
-      if (runner.base === "home") {
-        addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
-        logic.scoreRun();
-        logic.remove_runner_from_base(runner);
-      } else {
-        addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
-        if (basesNow[runner.base]) {
-          runner.isOut = true;
-          addAnimationLog(`<b>${runner.player.Name}</b> is OUT: multiple runners on ${runner.base.toUpperCase()}`);
-          logic.recordOut();
-        } else {
-          basesNow[runner.base] = runner;
-        }
-      }
-    }
+   }
     
+   for (const t of transitions) {
+    const runner = t.runner;
+    if (runner.isOut) continue;
+    if (runner.current_fraction < 1) {
+     allFinished = false;
+     const [sx, sy] = t.start;
+     const [ex, ey] = t.end;
+     runner.current_fraction += runner.speed;
+     const frac = Math.min(runner.current_fraction, 1);
+     runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
+    }
+   }
+
     for (const base_name in logic.base_states) {
-      const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
-      if (isOccupied) {
-        logic.set_base_red(base_name);
-      } else {
-        logic.set_base_default(base_name);
+      if (logic.base_states[base_name] === logic.FLASHING) {
+        const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
+         
+        if (runnersApproaching.length > 0) {
+          const closestRunner = runnersApproaching.reduce((prev, curr) => 
+            (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
+          );
+
+          const frac = Math.min(closestRunner.runner.current_fraction, 1);
+          const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
+          const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
+          logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
+        }
       }
     }
-    addAnimationLog("All runner movements complete.");
-  }).bind(this)(this, transitions);
+   redrawNeeded = true;
+   yield;
+  }
+
+  let basesNow = {};
+  for (const t of transitions) {
+   const runner = t.runner;
+   if (runner.isOut) continue;
+    
+   runner.base = runner.target;
+   runner.target = logic.get_next_base(runner.base);
+   runner.current_fraction = 0;
+   runner.isMoving = false;
+   logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
+
+   if (runner.base === "home") {
+    addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
+    logic.scoreRun();
+    logic.remove_runner_from_base(runner);
+   } else {
+    addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
+    if (basesNow[runner.base]) {
+     runner.isOut = true;
+     addAnimationLog(`<b>${runner.player.Name}</b> is OUT: multiple runners on ${runner.base.toUpperCase()}`);
+     logic.recordOut();
+    } else {
+     basesNow[runner.base] = runner;
+    }
+   }
+  }
+   
+  for (const base_name in logic.base_states) {
+   const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
+   if (isOccupied) {
+    logic.set_base_red(base_name);
+   } else {
+    logic.set_base_default(base_name);
+   }
+  }
+  addAnimationLog("All runner movements complete.");
+ }).bind(this)(this, transitions);
 }
 
 getState() {
  return {
-  base_coords: this.base_coords,
-  base_states: this.base_states,
-  base_colors: this.base_colors,
-  last_toggle_time: this.last_toggle_time,
-  dynamic_flash_ms: this.dynamic_flash_ms,
-  runners: this.runners.map(r => ({
-   pos: r.pos,
-   base: r.base,
-   target: r.target,
-   player: r.player,
-   speed: r.speed,
-   current_fraction: r.current_fraction,
-   isOut: r.isOut,
-   isMoving: r.isMoving
-  })),
-  homeScore: this.homeScore,
-  awayScore: this.awayScore,
-  outs: this.outs,
-  inning: this.inning,
-  topOfInning: this.topOfInning,
-  logHTML: logElement.innerHTML
+ base_coords: this.base_coords,
+ base_states: this.base_states,
+ base_colors: this.base_colors,
+ last_toggle_time: this.last_toggle_time,
+ dynamic_flash_ms: this.dynamic_flash_ms,
+ runners: this.runners.map(r => ({
+  pos: r.pos,
+  base: r.base,
+  target: r.target,
+  player: r.player,
+  speed: r.speed,
+  current_fraction: r.current_fraction,
+  isOut: r.isOut,
+  isMoving: r.isMoving
+ })),
+ homeScore: this.homeScore,
+ awayScore: this.awayScore,
+ outs: this.outs,
+ inning: this.inning,
+ topOfInning: this.topOfInning,
+ logHTML: logElement.innerHTML
  };
  }
 
 setState(state) {
  Object.assign(this, state);
  this.runners = state.runners.map(rData =>
-  new Runner(rData.pos, rData.base, rData.target, rData.player)
+ new Runner(rData.pos, rData.base, rData.target, rData.player)
  );
  }
 }
@@ -794,56 +825,53 @@ function draw_field() {
 function draw_runners() {
  for (const r of logic.runners) {
  if (!r.isOut) {
-  const [x, y] = r.pos;
-  const runnerRadius = canvasWidth * 0.025;
+ const [x, y] = r.pos;
+ const runnerRadius = canvasWidth * 0.025;
 
-  ctx.save();
-  ctx.shadowColor = "#a6ff4d";
-  ctx.shadowBlur = 8;
-  ctx.globalAlpha = 0.92;
-  ctx.fillStyle = "#c90019";
-  ctx.beginPath();
-  ctx.arc(x, y, runnerRadius, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.globalAlpha = 1;
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "#a6ff4d";
-  ctx.stroke();
-  ctx.restore();
+ ctx.save();
+ ctx.shadowColor = "#a6ff4d";
+ ctx.shadowBlur = 8;
+ ctx.globalAlpha = 0.92;
+ ctx.fillStyle = "#c90019";
+ ctx.beginPath();
+ ctx.arc(x, y, runnerRadius, 0, 2 * Math.PI);
+ ctx.fill();
+ ctx.shadowBlur = 0;
+ ctx.globalAlpha = 1;
+ ctx.lineWidth = 2;
+ ctx.strokeStyle = "#a6ff4d";
+ ctx.stroke();
+ ctx.restore();
 
-  // White background circle for logo
-  const whiteBgRadius = runnerRadius * 0.9;
-  ctx.save();
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.restore();
+ const whiteBgRadius = runnerRadius * 0.9;
+ ctx.save();
+ ctx.fillStyle = 'white';
+ ctx.beginPath();
+ ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
+ ctx.fill();
+ ctx.restore();
 
-  // Logo image
-  if (r.logoLoaded && r.logoImage) {
-    const logoSize = whiteBgRadius * 1.8;
-    const logoX = x - logoSize / 2;
-    const logoY = y - logoSize / 2;
-    ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
-  }
-  // Player name above
-  ctx.save();
-  const name = r.player?.Name.toUpperCase() || "RANDOM";
-  ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "bottom";
-  const gapAboveCircle = canvasWidth * 0.015;
-  const nameBaselineY = y - runnerRadius - gapAboveCircle;
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#18331e";
-  ctx.strokeText(name, x, nameBaselineY);
-  ctx.fillStyle = "#a6ff4d";
-  ctx.shadowColor = "#232a35";
-  ctx.shadowBlur = 10;
-  ctx.fillText(name, x, nameBaselineY);
-  ctx.restore();
+ if (r.logoLoaded && r.logoImage) {
+  const logoSize = whiteBgRadius * 1.8;
+  const logoX = x - logoSize / 2;
+  const logoY = y - logoSize / 2;
+  ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
+ }
+ ctx.save();
+ const name = r.player?.Name.toUpperCase() || "RANDOM";
+ ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
+ ctx.textAlign = "center";
+ ctx.textBaseline = "bottom";
+ const gapAboveCircle = canvasWidth * 0.015;
+ const nameBaselineY = y - runnerRadius - gapAboveCircle;
+ ctx.lineWidth = 4;
+ ctx.strokeStyle = "#18331e";
+ ctx.strokeText(name, x, nameBaselineY);
+ ctx.fillStyle = "#a6ff4d";
+ ctx.shadowColor = "#232a35";
+ ctx.shadowBlur = 10;
+ ctx.fillText(name, x, nameBaselineY);
+ ctx.restore();
  }
  }
 }
@@ -856,14 +884,14 @@ function updateScoreboard() {
 }
 function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
-  const el = document.getElementById(`mini-base-${base}`);
-  if (el) {
-    if (logic.runners.some(r => r.base === base && !r.isOut)) {
-     el.classList.add("occupied");
-    } else {
-     el.classList.remove("occupied");
-    }
+ const el = document.getElementById(`mini-base-${base}`);
+ if (el) {
+  if (logic.runners.some(r => r.base === base && !r.isOut)) {
+   el.classList.add("occupied");
+  } else {
+   el.classList.remove("occupied");
   }
+ }
  });
 }
 function update_gui() {
@@ -903,11 +931,16 @@ function resetScenario() {
  addAnimationLog("Scenario has been reset.");
 }
 function tagRunnerOut(runner) {
- saveState();
- runner.isOut = true;
- addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
- logic.recordOut();
- redrawNeeded = true;
+    saveState();
+    const baseName = runner.base;
+    runner.isOut = true;
+    addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
+    logic.recordOut();
+    const isBaseStillOccupied = logic.runners.some(r => r.base === baseName && !r.isOut);
+    if (!isBaseStillOccupied) {
+        logic.set_base_default(baseName);
+    }
+    redrawNeeded = true;
 }
 document.querySelectorAll(".mini-base").forEach(baseElement => {
  baseElement.addEventListener("click", () => {
@@ -917,38 +950,69 @@ document.querySelectorAll(".mini-base").forEach(baseElement => {
 });
 undoBtn.addEventListener('click', undo);
 function handleCanvasInteraction(event) {
- event.preventDefault();
- let pointerX, pointerY;
- if (event.type.startsWith("touch")) {
- if (event.touches.length > 0) {
-  pointerX = event.touches[0].clientX;
-  pointerY = event.touches[0].clientY;
- } else { return; }
- } else {
- pointerX = event.clientX;
- pointerY = event.clientY;
- }
- const rect = canvas.getBoundingClientRect();
- const scaleX = canvas.width / rect.width;
- const scaleY = canvas.height / rect.height;
- const clickX = (pointerX - rect.left) * scaleX;
- const clickY = (pointerY - rect.top) * scaleY;
- const clickRadius = canvasWidth * 0.03;
- for (const runner of logic.runners) {
- if (!runner.isOut) {
-  const [rx, ry] = runner.pos;
-  if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
-  tagRunnerOut(runner);
-  return;
-  }
- }
- }
- const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
- const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
- if (Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
- moveRunners();
- return;
- }
+    event.preventDefault();
+    let pointerX, pointerY;
+    if (event.type.startsWith("touch")) {
+        if (event.touches.length > 0) {
+            pointerX = event.touches[0].clientX;
+            pointerY = event.touches[0].clientY;
+        } else { return; }
+    } else {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+    }
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clickX = (pointerX - rect.left) * scaleX;
+    const clickY = (pointerY - rect.top) * scaleY;
+    const clickRadius = canvasWidth * 0.03;
+
+    // First, check if a runner themselves was tapped
+    for (const runner of logic.runners) {
+        if (!runner.isOut) {
+            const [rx, ry] = runner.pos;
+            if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
+                tagRunnerOut(runner);
+                return;
+            }
+        }
+    }
+
+    // --- NEW LOGIC: Force out by tapping the destination base ---
+    // This logic only runs if an animation is in progress.
+    if (animation_gen) {
+        const baseClickRadius = canvasWidth * 0.04; // A generous click area for bases
+
+        for (const baseName in logic.base_coords) {
+            const [baseX, baseY] = logic.base_coords[baseName];
+
+            // Check if this base was clicked
+            if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
+                
+                // Find the runner who is moving TO this base
+                const runnerToTag = logic.runners.find(
+                    r => r.isMoving && !r.isOut && r.target === baseName
+                );
+
+                if (runnerToTag) {
+                    addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
+                    tagRunnerOut(runnerToTag);
+                    return; // Action completed, exit function
+                }
+            }
+        }
+    }
+    // --- END NEW LOGIC ---
+
+    // Finally, check for a click on the mound to start the runners
+    // (but only if an animation is NOT already playing)
+    const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
+    const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
+    if (!animation_gen && Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
+        moveRunners();
+        return;
+    }
 }
 canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
@@ -963,28 +1027,71 @@ document.addEventListener('keydown', e => {
  else if (e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
 });
 
-// -------- SPEED MODE TOGGLE BUTTON --------
 const toggleSpeedBtn = document.getElementById("toggle-speed-btn");
 toggleSpeedBtn.addEventListener("click", () => {
  if (currentSpeedPreset === SPEED_PRESETS.MLB) {
-  currentSpeedPreset = SPEED_PRESETS.LITTLE_LEAGUE;
-  toggleSpeedBtn.textContent = "USE MLB SPEEDS";
-  addAnimationLog("Switched to Little League running speeds.");
+ currentSpeedPreset = SPEED_PRESETS.LITTLE_LEAGUE;
+ toggleSpeedBtn.textContent = "USE MLB SPEEDS";
+ addAnimationLog("Switched to Little League running speeds.");
  } else {
-  currentSpeedPreset = SPEED_PRESETS.MLB;
-  toggleSpeedBtn.textContent = "USE LITTLE LEAGUE SPEEDS";
-  addAnimationLog("Switched to MLB running speeds.");
+ currentSpeedPreset = SPEED_PRESETS.MLB;
+ toggleSpeedBtn.textContent = "USE LITTLE LEAGUE SPEEDS";
+ addAnimationLog("Switched to MLB running speeds.");
  }
  logic.runners.forEach(runner => {
-  let t = (99 - (parseInt(runner.player.Speed) || 70)) / 99;
-  let runTime;
-  if (runner.base === "home" && runner.target === "first")
-   runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
-  else
-   runTime = currentSpeedPreset.baseToBase;
-  runner.speed = calcSpeed(runTime);
+ let t = (99 - (parseInt(runner.player.Speed) || 70)) / 99;
+ let runTime;
+ if (runner.base === "home" && runner.target === "first")
+  runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+ else
+  runTime = currentSpeedPreset.baseToBase;
+ runner.speed = calcSpeed(runTime);
  });
 });
+
+// --- ESP32 WEBSOCKET INITIALIZATION ---
+function connectToDevice(device) {
+    const statusIndicator = document.getElementById(device.id);
+    
+    addAnimationLog(`Attempting to connect to ${device.name} at ws://${device.ip}/ws ...`);
+    statusIndicator.className = 'status-indicator status-connecting';
+
+    const ws = new WebSocket(`ws://${device.ip}/ws`);
+    esp_websockets[device.ip] = ws;
+
+    ws.onopen = function(event) {
+        addAnimationLog(`✅ Successfully connected to ${device.name}.`);
+        statusIndicator.className = 'status-indicator status-connected';
+        // Send the current base states as soon as a device connects
+        logic.sendAllBaseStates();
+    };
+
+    ws.onclose = function(event) {
+        addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
+        statusIndicator.className = 'status-indicator status-disconnected';
+        // Automatically try to reconnect the specific device after a delay
+        setTimeout(() => connectToDevice(device), 5000);
+    };
+
+    ws.onerror = function(error) {
+        addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
+        statusIndicator.className = 'status-indicator status-disconnected';
+        console.error(`WebSocket Error for ${device.name}: `, error);
+        // The onclose event will typically fire after an error, triggering the reconnect logic.
+    };
+    
+    ws.onmessage = function(event) {
+        // Optional: handle messages received FROM the ESP32
+        if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
+    };
+}
+
+function initializeAllConnections() {
+    ESP32_DEVICES.forEach(device => connectToDevice(device));
+}
+
+// Kick off the connection process for all devices when the page loads
+initializeAllConnections();
  </script>
 </body>
 </html>
