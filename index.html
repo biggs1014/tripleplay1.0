@@ -532,22 +532,31 @@ class GameLogic {
  redrawNeeded = true;
  }
  add_runner(base_name) {
- saveState();
- if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
- addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} already occupied.`);
- return;
- }
- const pos = this.get_runner_position(base_name);
- const target = this.get_next_base(base_name);
- let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
- if (allPlayers.length > 0) {
- player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
- }
- const runner = new Runner(pos, base_name, target, player);
- this.runners.push(runner);
- this.set_base_red(base_name);
- addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
- redrawNeeded = true;
+    saveState();
+
+    // Check 1: Is a runner already ON this base?
+    if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
+        addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
+        return;
+    }
+
+    // Check 2: Is a runner currently MOVING to this base?
+    if (this.runners.some(r => r.isMoving && r.target === base_name)) {
+        addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
+        return;
+    }
+
+    const pos = this.get_runner_position(base_name);
+    const target = this.get_next_base(base_name);
+    let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
+    if (allPlayers.length > 0) {
+        player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+    }
+    const runner = new Runner(pos, base_name, target, player);
+    this.runners.push(runner);
+    this.set_base_red(base_name);
+    addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
+    redrawNeeded = true;
  }
  get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
  get_next_base(current_base) {
@@ -580,123 +589,127 @@ class GameLogic {
  }
  }
  move_all_runners() {
- saveState();
- const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
- if (!runnersOnBase.length) {
-  addAnimationLog("No runners to move.");
-  return null;
- }
- addAnimationLog("Moving all runners...");
-
- const transitions = runnersOnBase.map((runner) => {
-  runner.isMoving = true;
-  addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
-  return {
-   runner,
-   start: [...runner.pos],
-   end: this.base_coords[runner.target]
-  };
- });
-
- if (!transitions.length) {
-  this.runners.forEach(r => r.isMoving = false);
-  addAnimationLog("No runners eligible to move.");
-  return null;
- }
-
- for (const base_name in this.base_states) {
-  const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
-  const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
-  if (isBeingAdvancedTo) {
-   this.set_base_flashing(base_name);
-  } else if (isOccupiedAndStaying) {
-   this.set_base_red(base_name);
-  } else {
-   this.set_base_default(base_name);
-  }
- }
-
- return (function* (logic, transitions) {
-  let allFinished = false;
-  while (!allFinished) {
-   allFinished = true;
-   for (let i = transitions.length - 1; i >= 0; i--) {
-    if (transitions[i].runner.isOut) {
-     transitions.splice(i, 1);
+    saveState();
+    const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
+    if (!runnersOnBase.length) {
+        addAnimationLog("No runners to move.");
+        return null;
     }
-   }
-    
-   for (const t of transitions) {
-    const runner = t.runner;
-    if (runner.isOut) continue;
-    if (runner.current_fraction < 1) {
-     allFinished = false;
-     const [sx, sy] = t.start;
-     const [ex, ey] = t.end;
-     runner.current_fraction += runner.speed;
-     const frac = Math.min(runner.current_fraction, 1);
-     runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
+    addAnimationLog("Moving all runners...");
+
+    const transitions = runnersOnBase.map((runner) => {
+        runner.isMoving = true;
+        addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
+        return {
+            runner,
+            start: [...runner.pos],
+            end: this.base_coords[runner.target]
+        };
+    });
+
+    if (!transitions.length) {
+        this.runners.forEach(r => r.isMoving = false);
+        addAnimationLog("No runners eligible to move.");
+        return null;
     }
-   }
 
-    for (const base_name in logic.base_states) {
-      if (logic.base_states[base_name] === logic.FLASHING) {
-        const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
-         
-        if (runnersApproaching.length > 0) {
-          const closestRunner = runnersApproaching.reduce((prev, curr) => 
-            (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
-          );
-
-          const frac = Math.min(closestRunner.runner.current_fraction, 1);
-          const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
-          const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
-          logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
+    for (const base_name in this.base_states) {
+        const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
+        const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
+        if (isBeingAdvancedTo) {
+            this.set_base_flashing(base_name);
+        } else if (isOccupiedAndStaying) {
+            this.set_base_red(base_name);
+        } else {
+            this.set_base_default(base_name);
         }
-      }
     }
-   redrawNeeded = true;
-   yield;
-  }
 
-  let basesNow = {};
-  for (const t of transitions) {
-   const runner = t.runner;
-   if (runner.isOut) continue;
-    
-   runner.base = runner.target;
-   runner.target = logic.get_next_base(runner.base);
-   runner.current_fraction = 0;
-   runner.isMoving = false;
-   logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
+    return (function* (logic, transitions) {
+        let allFinished = false;
+        while (!allFinished) {
+            allFinished = true;
+            for (let i = transitions.length - 1; i >= 0; i--) {
+                if (transitions[i].runner.isOut) {
+                    transitions.splice(i, 1);
+                }
+            }
+            
+            for (const t of transitions) {
+                const runner = t.runner;
+                if (runner.isOut) continue;
+                if (runner.current_fraction < 1) {
+                    allFinished = false;
+                    const [sx, sy] = t.start;
+                    const [ex, ey] = t.end;
+                    runner.current_fraction += runner.speed;
+                    const frac = Math.min(runner.current_fraction, 1);
+                    runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
+                }
+            }
 
-   if (runner.base === "home") {
-    addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
-    logic.scoreRun();
-    logic.remove_runner_from_base(runner);
-   } else {
-    addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
-    if (basesNow[runner.base]) {
-     runner.isOut = true;
-     addAnimationLog(`<b>${runner.player.Name}</b> is OUT: multiple runners on ${runner.base.toUpperCase()}`);
-     logic.recordOut();
-    } else {
-     basesNow[runner.base] = runner;
-    }
-   }
-  }
-   
-  for (const base_name in logic.base_states) {
-   const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
-   if (isOccupied) {
-    logic.set_base_red(base_name);
-   } else {
-    logic.set_base_default(base_name);
-   }
-  }
-  addAnimationLog("All runner movements complete.");
- }).bind(this)(this, transitions);
+            for (const base_name in logic.base_states) {
+                if (logic.base_states[base_name] === logic.FLASHING) {
+                    const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
+                    
+                    if (runnersApproaching.length > 0) {
+                        const closestRunner = runnersApproaching.reduce((prev, curr) => 
+                            (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
+                        );
+
+                        const frac = Math.min(closestRunner.runner.current_fraction, 1);
+                        const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
+                        const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
+                        logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
+                    }
+                }
+            }
+            redrawNeeded = true;
+            yield;
+        }
+
+        // --- REVISED LOGIC FOR HANDLING ARRIVALS ---
+        for (const t of transitions) {
+            const runner = t.runner;
+            if (runner.isOut) continue;
+            
+            runner.base = runner.target;
+            runner.target = logic.get_next_base(runner.base);
+            runner.current_fraction = 0;
+            runner.isMoving = false;
+            logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
+
+            if (runner.base === "home") {
+                addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
+                logic.scoreRun();
+                logic.remove_runner_from_base(runner);
+            } else {
+                const otherRunnerOnBase = logic.runners.find(
+                    r => r !== runner && r.base === runner.base && !r.isOut
+                );
+
+                if (otherRunnerOnBase) {
+                    runner.isOut = true;
+                    addAnimationLog(`<b>${runner.player.Name}</b> is OUT: ${runner.base.toUpperCase()} is already occupied by <b>${otherRunnerOnBase.player.Name}</b>.`);
+                    logic.recordOut();
+                } else {
+                    addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
+                }
+            }
+        }
+        
+        for (const base_name in logic.base_states) {
+            const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
+            if (isOccupied) {
+                logic.set_base_red(base_name);
+            } else {
+                logic.set_base_default(base_name);
+            }
+        }
+        addAnimationLog("All runner movements complete.");
+    }).bind(this)(this, transitions);
 }
+
 
 getState() {
  return {
@@ -979,18 +992,14 @@ function handleCanvasInteraction(event) {
         }
     }
 
-    // --- NEW LOGIC: Force out by tapping the destination base ---
-    // This logic only runs if an animation is in progress.
+    // Force out by tapping the destination base
     if (animation_gen) {
-        const baseClickRadius = canvasWidth * 0.04; // A generous click area for bases
+        const baseClickRadius = canvasWidth * 0.04; 
 
         for (const baseName in logic.base_coords) {
             const [baseX, baseY] = logic.base_coords[baseName];
 
-            // Check if this base was clicked
             if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
-                
-                // Find the runner who is moving TO this base
                 const runnerToTag = logic.runners.find(
                     r => r.isMoving && !r.isOut && r.target === baseName
                 );
@@ -998,15 +1007,13 @@ function handleCanvasInteraction(event) {
                 if (runnerToTag) {
                     addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
                     tagRunnerOut(runnerToTag);
-                    return; // Action completed, exit function
+                    return; 
                 }
             }
         }
     }
-    // --- END NEW LOGIC ---
 
-    // Finally, check for a click on the mound to start the runners
-    // (but only if an animation is NOT already playing)
+    // Click on the mound to start the runners
     const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
     const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
     if (!animation_gen && Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
@@ -1062,14 +1069,12 @@ function connectToDevice(device) {
     ws.onopen = function(event) {
         addAnimationLog(`✅ Successfully connected to ${device.name}.`);
         statusIndicator.className = 'status-indicator status-connected';
-        // Send the current base states as soon as a device connects
         logic.sendAllBaseStates();
     };
 
     ws.onclose = function(event) {
         addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
         statusIndicator.className = 'status-indicator status-disconnected';
-        // Automatically try to reconnect the specific device after a delay
         setTimeout(() => connectToDevice(device), 5000);
     };
 
@@ -1077,11 +1082,9 @@ function connectToDevice(device) {
         addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
         statusIndicator.className = 'status-indicator status-disconnected';
         console.error(`WebSocket Error for ${device.name}: `, error);
-        // The onclose event will typically fire after an error, triggering the reconnect logic.
     };
     
     ws.onmessage = function(event) {
-        // Optional: handle messages received FROM the ESP32
         if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
     };
 }
@@ -1090,7 +1093,6 @@ function initializeAllConnections() {
     ESP32_DEVICES.forEach(device => connectToDevice(device));
 }
 
-// Kick off the connection process for all devices when the page loads
 initializeAllConnections();
  </script>
 </body>
