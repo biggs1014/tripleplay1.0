@@ -226,56 +226,56 @@ button:hover, button:focus-visible {
 <body>
  <div class="main-container">
  <div id="game-container">
-  <canvas id="baseballCanvas"></canvas>
-  <div id="action-buttons">
-  <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
-  <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
-  <button onclick="resetScenario()">RESET</button>
-  <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
-  <button id="toggle-speed-btn">USE LITTLE LEAGUE SPEEDS</button>
+ <canvas id="baseballCanvas"></canvas>
+ <div id="action-buttons">
+ <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
+ <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
+ <button onclick="resetScenario()">RESET</button>
+ <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
+ <button id="toggle-speed-btn">USE LITTLE LEAGUE SPEEDS</button>
+ </div>
+ <div id="scoreboard-container">
+ <div class="scoreboard-section scoreboard-left">
+  <span id="away-team-name">AWAY</span>
+  <span id="away-score">0</span>
+ </div>
+ <div class="scoreboard-section scoreboard-middle">
+  <div class="inning-display">
+  <span id="inning-arrow">▲</span>
+  <span id="inning-number">1</span>
   </div>
-  <div id="scoreboard-container">
-  <div class="scoreboard-section scoreboard-left">
-   <span id="away-team-name">AWAY</span>
-   <span id="away-score">0</span>
-  </div>
-  <div class="scoreboard-section scoreboard-middle">
-   <div class="inning-display">
-   <span id="inning-arrow">▲</span>
-   <span id="inning-number">1</span>
-   </div>
-   <div id="outs-display">0 OUTS</div>
-  </div>
-  <div class="scoreboard-section scoreboard-right">
-   <span id="home-team-name">HOME</span>
-   <span id="home-score">0</span>
-  </div>
-  </div>
-  <div id="mini-base-container">
-  <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
-  <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
-  <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
-  <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
-  </div>
-  <div id="animation-log"></div>
-  <div style="display: flex; justify-content: center; margin-top:7px;">
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-1</span>
-   <div id="status-display-1" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-2</span>
-   <div id="status-display-2" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-3</span>
-   <div id="status-display-3" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-4</span>
-   <div id="status-display-4" class="status-indicator status-connecting"></div>
-  </div>
-  </div>
+  <div id="outs-display">0 OUTS</div>
+ </div>
+ <div class="scoreboard-section scoreboard-right">
+  <span id="home-team-name">HOME</span>
+  <span id="home-score">0</span>
+ </div>
+ </div>
+ <div id="mini-base-container">
+ <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
+ <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
+ <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
+ <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
+ </div>
+ <div id="animation-log"></div>
+ <div style="display: flex; justify-content: center; margin-top:7px;">
+ <div style="text-align:center; margin: 0 10px;">
+  <span style="color:white; display:block;">ESP32-1</span>
+  <div id="status-display-1" class="status-indicator status-connecting"></div>
+ </div>
+ <div style="text-align:center; margin: 0 10px;">
+  <span style="color:white; display:block;">ESP32-2</span>
+  <div id="status-display-2" class="status-indicator status-connecting"></div>
+ </div>
+ <div style="text-align:center; margin: 0 10px;">
+  <span style="color:white; display:block;">ESP32-3</span>
+  <div id="status-display-3" class="status-indicator status-connecting"></div>
+ </div>
+ <div style="text-align:center; margin: 0 10px;">
+  <span style="color:white; display:block;">ESP32-4</span>
+  <div id="status-display-4" class="status-indicator status-connecting"></div>
+ </div>
+ </div>
  </div>
  </div>
  <script>
@@ -288,13 +288,15 @@ const PLAYER_NAME_FONT_SCALE = 0.035;
 const GAME_FPS = 60;
 
 // --- ESP32 WEBSOCKET CONFIGURATION ---
-// IMPORTANT: Change these to the IP addresses of YOUR ESP32 controllers.
+// Connect to the single ESP32 hub which controls all bases.
 const ESP32_DEVICES = [
-    { name: "ESP32-1", ip: "192.168.1.100", id: "status-display-1" },
-    { name: "ESP32-2", ip: "192.168.1.101", id: "status-display-2" },
-    { name: "ESP32-3", ip: "192.168.1.102", id: "status-display-3" },
-    { name: "ESP32-4", ip: "192.168.1.103", id: "status-display-4" }
+  // The default IP address for an ESP32 in Access Point mode is 192.168.4.1
+  { name: "TRIPLE PLAY HUB", ip: "192.168.4.1", id: "status-display-1" }
 ];
+// We'll hide the other status indicators since we only have one device
+document.getElementById('status-display-2').parentElement.style.display = 'none';
+document.getElementById('status-display-3').parentElement.style.display = 'none';
+document.getElementById('status-display-4').parentElement.style.display = 'none';
 let esp_websockets = {}; // Store connections by IP address
 
 const SPEED_PRESETS = {
@@ -344,31 +346,40 @@ function undo() {
  addAnimationLog("Undid last action.");
 }
 
+// --- FETCHING ASSETS ---
+
+// Fetch Team Logos JSON from GitHub (as requested)
 fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/team_logos.json')
  .then(resp => resp.json())
  .then(data => {
  teamLogos = data;
- addAnimationLog(`Team logos loaded: ${Object.keys(teamLogos).length} teams.`);
+ addAnimationLog(`Team logos loaded from GitHub: ${Object.keys(teamLogos).length} teams.`);
  })
  .catch(err => addAnimationLog("ERROR: Failed to load team logos from GitHub."));
 
+// Fetch Player Stats JSON from GitHub (as requested)
 fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/all_players_stats.json')
  .then(resp => resp.json())
  .then(data => {
  allPlayers = data;
- addAnimationLog("MLB player data loaded: " + allPlayers.length + " players.");
+ addAnimationLog("MLB player data loaded from GitHub: " + allPlayers.length + " players.");
  })
  .catch(() => addAnimationLog("Failed to load player stats from GitHub. Using defaults."));
 
+// --- LOCAL ASSETS (REVISED) ---
 const logoImage = new Image();
-logoImage.src = "https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/tripleplay1.png";
+// REVISED: Fetch the Triple Play logo locally. Ensure 'tripleplay1.png' is in the same folder.
+logoImage.src = "tripleplay1.png"; 
 logoImage.onload = () => redrawNeeded = true;
-logoImage.onerror = () => { addAnimationLog("Logo image missing."); };
+logoImage.onerror = () => { addAnimationLog("ERROR: Local logo image 'tripleplay1.png' missing."); };
+
 const backgroundImage = new Image();
-backgroundImage.src = "https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/field.jpg";
+// REVISED: Fetch the field background image locally. Ensure 'field.jpg' is in the same folder.
+backgroundImage.src = "field.jpg";
 let backgroundImageLoaded = false;
-backgroundImage.onload = () => { backgroundImageLoaded = true; addAnimationLog("Field image loaded."); redrawNeeded = true;};
-backgroundImage.onerror = () => { addAnimationLog("Field image missing."); backgroundImageLoaded = false; };
+backgroundImage.onload = () => { backgroundImageLoaded = true; addAnimationLog("Local field image loaded."); redrawNeeded = true;};
+backgroundImage.onerror = () => { addAnimationLog("ERROR: Local field image 'field.jpg' missing."); backgroundImageLoaded = false; };
+
 function addAnimationLog(message) {
  const newEntry = document.createElement("div");
  newEntry.innerHTML = message;
@@ -387,9 +398,9 @@ class Runner {
  let t = (99 - (parseInt(this.player.Speed) || 70)) / 99;
  let runTime;
  if (base_name === "home" && target === "first")
-  runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+ runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
  else
-  runTime = currentSpeedPreset.baseToBase;
+ runTime = currentSpeedPreset.baseToBase;
  this.speed = calcSpeed(runTime);
 
  this.current_fraction = 0;
@@ -402,22 +413,22 @@ class Runner {
  loadLogo() {
  const fullTeamName = this.player["Team Name"];
  if (fullTeamName && teamLogos[fullTeamName]) {
-  const svgText = teamLogos[fullTeamName];
-  const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
-  const img = new Image();
-  img.onload = () => {
-  this.logoLoaded = true;
-  redrawNeeded = true;
-  };
-  img.onerror = () => {
-  console.error(`Failed to load logo image for ${fullTeamName}`);
-  };
-  img.src = svgUrl;
-  this.logoImage = img;
+ const svgText = teamLogos[fullTeamName];
+ const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
+ const img = new Image();
+ img.onload = () => {
+ this.logoLoaded = true;
+ redrawNeeded = true;
+ };
+ img.onerror = () => {
+ console.error(`Failed to load logo image for $`);
+ };
+ img.src = svgUrl;
+ this.logoImage = img;
  } else {
-  if (DEBUG_MODE && fullTeamName) {
-  console.log(`Logo not found for team: "${fullTeamName}"`);
-  }
+ if (DEBUG_MODE && fullTeamName) {
+ console.log(`Logo not found for team: "$"`);
+ }
  }
  }
  clone() { return new Runner([...this.pos], this.base, this.target, { ...this.player }); }
@@ -442,23 +453,21 @@ class GameLogic {
 
  // --- ESP32 Communication Method ---
  sendAllBaseStates() {
-    const statePayload = {
-        home: this.base_states.home,
-        first: this.base_states.first,
-        second: this.base_states.second,
-        third: this.base_states.third
-    };
-    const jsonString = JSON.stringify(statePayload);
+  const statePayload = {
+    home: this.base_states.home,
+    first: this.base_states.first,
+    second: this.base_states.second,
+    third: this.base_states.third
+  };
+  const jsonString = JSON.stringify(statePayload);
 
-    // Loop through all stored websocket connections
-    for (const ip in esp_websockets) {
-        const ws = esp_websockets[ip];
-        // Only send if the websocket exists and is connected
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(jsonString);
-            if (DEBUG_MODE) console.log(`Sent to ${ip}:`, jsonString);
-        }
+  for (const ip in esp_websockets) {
+    const ws = esp_websockets[ip];
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(jsonString);
+      if (DEBUG_MODE) console.log(`Sent to $:`, jsonString);
     }
+  }
  }
 
  // --- Base State-Changing Methods (Now with ESP32 sync) ---
@@ -467,7 +476,7 @@ class GameLogic {
  this.base_colors[base_name] = "#f4f5fa";
  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
  redrawNeeded = true;
- this.sendAllBaseStates(); // Sync with ALL connected ESP32s
+ this.sendAllBaseStates();
  }
  set_base_flashing(base_name) {
  this.base_states[base_name] = this.FLASHING;
@@ -476,14 +485,14 @@ class GameLogic {
  this.base_colors[base_name] = "#2ecc40";
  }
  redrawNeeded = true;
- this.sendAllBaseStates(); // Sync with ALL connected ESP32s
+ this.sendAllBaseStates();
  }
  set_base_red(base_name) {
  this.base_states[base_name] = this.RED;
  this.base_colors[base_name] = "#d81c2b";
  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
  redrawNeeded = true;
- this.sendAllBaseStates(); // Sync with ALL connected ESP32s
+ this.sendAllBaseStates();
  }
 
  clearBases() {
@@ -532,26 +541,26 @@ class GameLogic {
  redrawNeeded = true;
  }
  add_runner(base_name) {
-    saveState();
-    if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
-        addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
-        return;
-    }
-    if (this.runners.some(r => r.isMoving && r.target === base_name)) {
-        addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
-        return;
-    }
-    const pos = this.get_runner_position(base_name);
-    const target = this.get_next_base(base_name);
-    let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
-    if (allPlayers.length > 0) {
-        player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
-    }
-    const runner = new Runner(pos, base_name, target, player);
-    this.runners.push(runner);
-    this.set_base_red(base_name);
-    addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
-    redrawNeeded = true;
+  saveState();
+  if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
+    addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
+    return;
+  }
+  if (this.runners.some(r => !r.isOut && r.isMoving && r.target === base_name)) {
+    addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
+    return;
+  }
+  const pos = this.get_runner_position(base_name);
+  const target = this.get_next_base(base_name);
+  let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
+  if (allPlayers.length > 0) {
+    player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+  }
+  const runner = new Runner(pos, base_name, target, player);
+  this.runners.push(runner);
+  this.set_base_red(base_name);
+  addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
+  redrawNeeded = true;
  }
  get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
  get_next_base(current_base) {
@@ -576,167 +585,170 @@ class GameLogic {
  if (this.base_states[base_name] === this.FLASHING) {
  const elapsed = now - this.last_toggle_time[base_name];
  if (elapsed >= this.dynamic_flash_ms[base_name]) {
-  this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
-  this.last_toggle_time[base_name] = now;
-  redrawNeeded = true;
+ this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
+ this.last_toggle_time[base_name] = now;
+ redrawNeeded = true;
  }
  }
  }
  }
  move_all_runners() {
-    saveState();
-    const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
-    if (!runnersOnBase.length) {
-        addAnimationLog("No runners to move.");
-        return null;
+  saveState();
+  const runnersOnBase = this.runners.filter((r) => !r.isOut && r.base);
+  if (!runnersOnBase.length) {
+    addAnimationLog("No runners to move.");
+    return null;
+  }
+  addAnimationLog("Moving all runners...");
+
+  const transitions = runnersOnBase.map((runner) => {
+    runner.isMoving = true;
+    addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
+    return {
+      runner,
+      start: [...runner.pos],
+      end: this.base_coords[runner.target]
+    };
+  });
+
+  if (!transitions.length) {
+    this.runners.forEach(r => r.isMoving = false);
+    addAnimationLog("No runners eligible to move.");
+    return null;
+  }
+
+  for (const base_name in this.base_states) {
+    const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
+    const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
+    if (isBeingAdvancedTo) {
+      this.set_base_flashing(base_name);
+    } else if (isOccupiedAndStaying) {
+      this.set_base_red(base_name);
+    } else {
+      this.set_base_default(base_name);
     }
-    addAnimationLog("Moving all runners...");
+  }
 
-    const transitions = runnersOnBase.map((runner) => {
-        runner.isMoving = true;
-        addAnimationLog(`<b>${runner.player.Name}</b> (${runner.base}) moving to ${runner.target}.`);
-        return {
-            runner,
-            start: [...runner.pos],
-            end: this.base_coords[runner.target]
-        };
-    });
+  return (function* (logic, transitions) {
+    let allFinished = false;
+    while (!allFinished) {
+      allFinished = true;
+      for (let i = transitions.length - 1; i >= 0; i--) {
+        if (transitions[i].runner.isOut) {
+          transitions.splice(i, 1);
+        }
+      }
+       
+      for (const t of transitions) {
+        const runner = t.runner;
+        if (runner.isOut) continue;
+        if (runner.current_fraction < 1) {
+          allFinished = false;
+          const [sx, sy] = t.start;
+          const [ex, ey] = t.end;
+          runner.current_fraction += runner.speed;
+          const frac = Math.min(runner.current_fraction, 1);
+          runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
+        }
+      }
 
-    if (!transitions.length) {
-        this.runners.forEach(r => r.isMoving = false);
-        addAnimationLog("No runners eligible to move.");
-        return null;
+      for (const base_name in logic.base_states) {
+        if (logic.base_states[base_name] === logic.FLASHING) {
+          const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
+         
+          if (runnersApproaching.length > 0) {
+            const closestRunner = runnersApproaching.reduce((prev, curr) => 
+              (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
+            );
+
+            const frac = Math.min(closestRunner.runner.current_fraction, 1);
+            const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
+            const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
+            logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
+          } else {
+            // FIX: If no more runners are approaching a flashing base, it should stop flashing.
+            logic.set_base_default(base_name);
+          }
+        }
+      }
+      redrawNeeded = true;
+      yield;
     }
 
-    for (const base_name in this.base_states) {
-        const isBeingAdvancedTo = transitions.some(t => t.runner.target === base_name);
-        const isOccupiedAndStaying = this.runners.some(r => r.base === base_name && !r.isMoving && !r.isOut);
-        if (isBeingAdvancedTo) {
-            this.set_base_flashing(base_name);
-        } else if (isOccupiedAndStaying) {
-            this.set_base_red(base_name);
+    // STAGE 1: Update all runner positions first. Do not check for outs yet.
+    for (const t of transitions) {
+      const runner = t.runner;
+      if (runner.isOut) continue;
+       
+      runner.base = runner.target;
+      runner.target = logic.get_next_base(runner.base);
+      runner.current_fraction = 0;
+      runner.isMoving = false;
+      logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
+    }
+
+    // STAGE 2: Now that all runners are in their final positions, check for outs and runs.
+    const runnersToProcess = transitions.map(t => t.runner).filter(r => !r.isOut);
+    for(const runner of runnersToProcess) {
+      if (runner.base === "home") {
+        addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
+        logic.scoreRun();
+        logic.remove_runner_from_base(runner);
+      } else {
+        const otherRunnerOnBase = logic.runners.find(
+          r => r !== runner && r.base === runner.base && !r.isOut
+        );
+
+        if (otherRunnerOnBase) {
+          runner.isOut = true;
+          addAnimationLog(`<b>${runner.player.Name}</b> is OUT: ${runner.base.toUpperCase()} is already occupied by <b>${otherRunnerOnBase.player.Name}</b>.`);
+          logic.recordOut();
         } else {
-            this.set_base_default(base_name);
+          addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
         }
+      }
     }
-
-    return (function* (logic, transitions) {
-        let allFinished = false;
-        while (!allFinished) {
-            allFinished = true;
-            for (let i = transitions.length - 1; i >= 0; i--) {
-                if (transitions[i].runner.isOut) {
-                    transitions.splice(i, 1);
-                }
-            }
-            
-            for (const t of transitions) {
-                const runner = t.runner;
-                if (runner.isOut) continue;
-                if (runner.current_fraction < 1) {
-                    allFinished = false;
-                    const [sx, sy] = t.start;
-                    const [ex, ey] = t.end;
-                    runner.current_fraction += runner.speed;
-                    const frac = Math.min(runner.current_fraction, 1);
-                    runner.pos = [sx + (ex - sx) * frac, sy + (ey - sy) * frac];
-                }
-            }
-
-            for (const base_name in logic.base_states) {
-                if (logic.base_states[base_name] === logic.FLASHING) {
-                    const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
-                    
-                    if (runnersApproaching.length > 0) {
-                        const closestRunner = runnersApproaching.reduce((prev, curr) => 
-                            (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
-                        );
-
-                        const frac = Math.min(closestRunner.runner.current_fraction, 1);
-                        const minFlash = logic.MIN_FLASH_MS, maxFlash = logic.DEFAULT_FLASH_MS;
-                        const flashInterval = maxFlash - (maxFlash - minFlash) * frac;
-                        logic.dynamic_flash_ms[base_name] = Math.max(minFlash, Math.min(maxFlash, flashInterval));
-                    }
-                }
-            }
-            redrawNeeded = true;
-            yield;
-        }
-
-        // --- CORRECTED ARRIVAL LOGIC ---
-        // STAGE 1: Update all runner positions first. Do not check for outs yet.
-        for (const t of transitions) {
-            const runner = t.runner;
-            if (runner.isOut) continue;
-            
-            runner.base = runner.target;
-            runner.target = logic.get_next_base(runner.base);
-            runner.current_fraction = 0;
-            runner.isMoving = false;
-            logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
-        }
-
-        // STAGE 2: Now that all runners are in their final positions, check for outs and runs.
-        const runnersToProcess = transitions.map(t => t.runner).filter(r => !r.isOut);
-        for(const runner of runnersToProcess) {
-            if (runner.base === "home") {
-                addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
-                logic.scoreRun();
-                logic.remove_runner_from_base(runner);
-            } else {
-                const otherRunnerOnBase = logic.runners.find(
-                    r => r !== runner && r.base === runner.base && !r.isOut
-                );
-
-                if (otherRunnerOnBase) {
-                    runner.isOut = true;
-                    addAnimationLog(`<b>${runner.player.Name}</b> is OUT: ${runner.base.toUpperCase()} is already occupied by <b>${otherRunnerOnBase.player.Name}</b>.`);
-                    logic.recordOut();
-                } else {
-                    addAnimationLog(`<b>${runner.player.Name}</b> arrived safely at ${runner.base.toUpperCase()}`);
-                }
-            }
-        }
-        
-        // STAGE 3: Final loop to set the visual state of all bases correctly.
-        for (const base_name in logic.base_states) {
-            const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
-            if (isOccupied) {
-                logic.set_base_red(base_name);
-            } else {
-                logic.set_base_default(base_name);
-            }
-        }
-        addAnimationLog("All runner movements complete.");
-    }).bind(this)(this, transitions);
+     
+    // STAGE 3: Final loop to set the visual state of all bases correctly.
+    for (const base_name in logic.base_states) {
+      const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
+      if (isOccupied) {
+        logic.set_base_red(base_name);
+      } else {
+        logic.set_base_default(base_name);
+      }
+    }
+    addAnimationLog("All runner movements complete.");
+  }).bind(this)(this, transitions);
 }
 
 
 getState() {
- return {
- base_coords: this.base_coords,
- base_states: this.base_states,
- base_colors: this.base_colors,
- last_toggle_time: this.last_toggle_time,
- dynamic_flash_ms: this.dynamic_flash_ms,
- runners: this.runners.map(r => ({
-  pos: r.pos,
-  base: r.base,
-  target: r.target,
-  player: r.player,
-  speed: r.speed,
-  current_fraction: r.current_fraction,
-  isOut: r.isOut,
-  isMoving: r.isMoving
- })),
- homeScore: this.homeScore,
- awayScore: this.awayScore,
- outs: this.outs,
- inning: this.inning,
- topOfInning: this.topOfInning,
- logHTML: logElement.innerHTML
- };
- }
+  return {
+    base_coords: this.base_coords,
+    base_states: { ...this.base_states },
+    base_colors: { ...this.base_colors },
+    last_toggle_time: { ...this.last_toggle_time },
+    dynamic_flash_ms: { ...this.dynamic_flash_ms },
+    runners: this.runners.map(r => ({
+      pos: [...r.pos],
+      base: r.base,
+      target: r.target,
+      player: { ...r.player },
+      speed: r.speed,
+      current_fraction: r.current_fraction,
+      isOut: r.isOut,
+      isMoving: r.isMoving
+    })),
+    homeScore: this.homeScore,
+    awayScore: this.awayScore,
+    outs: this.outs,
+    inning: this.inning,
+    topOfInning: this.topOfInning,
+    logHTML: logElement.innerHTML
+  };
+}
+
 
 setState(state) {
  Object.assign(this, state);
@@ -866,10 +878,10 @@ function draw_runners() {
  ctx.restore();
 
  if (r.logoLoaded && r.logoImage) {
-  const logoSize = whiteBgRadius * 1.8;
-  const logoX = x - logoSize / 2;
-  const logoY = y - logoSize / 2;
-  ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
+ const logoSize = whiteBgRadius * 1.8;
+ const logoX = x - logoSize / 2;
+ const logoY = y - logoSize / 2;
+ ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
  }
  ctx.save();
  const name = r.player?.Name.toUpperCase() || "RANDOM";
@@ -900,11 +912,11 @@ function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
  const el = document.getElementById(`mini-base-${base}`);
  if (el) {
-  if (logic.runners.some(r => r.base === base && !r.isOut)) {
-   el.classList.add("occupied");
-  } else {
-   el.classList.remove("occupied");
-  }
+ if (logic.runners.some(r => r.base === base && !r.isOut)) {
+  el.classList.add("occupied");
+ } else {
+  el.classList.remove("occupied");
+ }
  }
  });
 }
@@ -945,16 +957,21 @@ function resetScenario() {
  addAnimationLog("Scenario has been reset.");
 }
 function tagRunnerOut(runner) {
-    saveState();
-    const baseName = runner.base;
-    runner.isOut = true;
-    addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
-    logic.recordOut();
-    const isBaseStillOccupied = logic.runners.some(r => r.base === baseName && !r.isOut);
-    if (!isBaseStillOccupied) {
-        logic.set_base_default(baseName);
-    }
-    redrawNeeded = true;
+  if (runner.isOut) return; // Prevent acting on a runner who is already out.
+
+  saveState();
+  runner.isOut = true;
+  runner.isMoving = false; // An "out" runner is no longer considered to be moving.
+  
+  addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
+  logic.recordOut();
+
+  // The main animation loop (`move_all_runners` generator) is now the single source of truth
+  // for managing base lights during animation. By setting the runner's state here,
+  // the generator will automatically handle the visual cleanup on the next frame.
+  // This prevents conflicting logic and ensures trailing runners' base lights remain active.
+
+  redrawNeeded = true;
 }
 document.querySelectorAll(".mini-base").forEach(baseElement => {
  baseElement.addEventListener("click", () => {
@@ -964,63 +981,57 @@ document.querySelectorAll(".mini-base").forEach(baseElement => {
 });
 undoBtn.addEventListener('click', undo);
 function handleCanvasInteraction(event) {
-    event.preventDefault();
-    let pointerX, pointerY;
-    if (event.type.startsWith("touch")) {
-        if (event.touches.length > 0) {
-            pointerX = event.touches[0].clientX;
-            pointerY = event.touches[0].clientY;
-        } else { return; }
-    } else {
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-    }
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clickX = (pointerX - rect.left) * scaleX;
-    const clickY = (pointerY - rect.top) * scaleY;
-    const clickRadius = canvasWidth * 0.03;
+  event.preventDefault();
+  let pointerX, pointerY;
+  if (event.type.startsWith("touch")) {
+    if (event.touches.length > 0) {
+      pointerX = event.touches[0].clientX;
+      pointerY = event.touches[0].clientY;
+    } else { return; }
+  } else {
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+  }
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const clickX = (pointerX - rect.left) * scaleX;
+  const clickY = (pointerY - rect.top) * scaleY;
+  const clickRadius = canvasWidth * 0.03;
 
-    // First, check if a runner themselves was tapped
-    for (const runner of logic.runners) {
-        if (!runner.isOut) {
-            const [rx, ry] = runner.pos;
-            if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
-                tagRunnerOut(runner);
-                return;
-            }
-        }
-    }
-
-    // Force out by tapping the destination base
-    if (animation_gen) {
-        const baseClickRadius = canvasWidth * 0.04; 
-
-        for (const baseName in logic.base_coords) {
-            const [baseX, baseY] = logic.base_coords[baseName];
-
-            if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
-                const runnerToTag = logic.runners.find(
-                    r => r.isMoving && !r.isOut && r.target === baseName
-                );
-
-                if (runnerToTag) {
-                    addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
-                    tagRunnerOut(runnerToTag);
-                    return; 
-                }
-            }
-        }
-    }
-
-    // Click on the mound to start the runners
-    const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
-    const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
-    if (!animation_gen && Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
-        moveRunners();
+  for (const runner of logic.runners) {
+    if (!runner.isOut) {
+      const [rx, ry] = runner.pos;
+      if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
+        tagRunnerOut(runner);
         return;
+      }
     }
+  }
+
+  if (animation_gen) {
+    const baseClickRadius = canvasWidth * 0.04; 
+    for (const baseName in logic.base_coords) {
+      const [baseX, baseY] = logic.base_coords[baseName];
+      if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
+        const runnerToTag = logic.runners.find(
+          r => r.isMoving && !r.isOut && r.target === baseName
+        );
+        if (runnerToTag) {
+          addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
+          tagRunnerOut(runnerToTag);
+          return; 
+        }
+      }
+    }
+  }
+
+  const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
+  const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
+  if (!animation_gen && Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
+    moveRunners();
+    return;
+  }
 }
 canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
@@ -1050,48 +1061,48 @@ toggleSpeedBtn.addEventListener("click", () => {
  let t = (99 - (parseInt(runner.player.Speed) || 70)) / 99;
  let runTime;
  if (runner.base === "home" && runner.target === "first")
-  runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
+ runTime = lerp(currentSpeedPreset.minTime, currentSpeedPreset.maxTime, t);
  else
-  runTime = currentSpeedPreset.baseToBase;
+ runTime = currentSpeedPreset.baseToBase;
  runner.speed = calcSpeed(runTime);
  });
 });
 
 // --- ESP32 WEBSOCKET INITIALIZATION ---
 function connectToDevice(device) {
-    const statusIndicator = document.getElementById(device.id);
-    
-    addAnimationLog(`Attempting to connect to ${device.name} at ws://${device.ip}/ws ...`);
-    statusIndicator.className = 'status-indicator status-connecting';
+  const statusIndicator = document.getElementById(device.id);
+  
+  addAnimationLog(`Attempting to connect to ${device.name} at ws://${device.ip}/ws ...`);
+  statusIndicator.className = 'status-indicator status-connecting';
 
-    const ws = new WebSocket(`ws://${device.ip}/ws`);
-    esp_websockets[device.ip] = ws;
+  const ws = new WebSocket(`ws://${device.ip}/ws`);
+  esp_websockets[device.ip] = ws;
 
-    ws.onopen = function(event) {
-        addAnimationLog(`✅ Successfully connected to ${device.name}.`);
-        statusIndicator.className = 'status-indicator status-connected';
-        logic.sendAllBaseStates();
-    };
+  ws.onopen = function(event) {
+    addAnimationLog(`✅ Successfully connected to ${device.name}.`);
+    statusIndicator.className = 'status-indicator status-connected';
+    logic.sendAllBaseStates();
+  };
 
-    ws.onclose = function(event) {
-        addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
-        statusIndicator.className = 'status-indicator status-disconnected';
-        setTimeout(() => connectToDevice(device), 5000);
-    };
+  ws.onclose = function(event) {
+    addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
+    statusIndicator.className = 'status-indicator status-disconnected';
+    setTimeout(() => connectToDevice(device), 5000);
+  };
 
-    ws.onerror = function(error) {
-        addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
-        statusIndicator.className = 'status-indicator status-disconnected';
-        console.error(`WebSocket Error for ${device.name}: `, error);
-    };
-    
-    ws.onmessage = function(event) {
-        if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
-    };
+  ws.onerror = function(error) {
+    addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
+    statusIndicator.className = 'status-indicator status-disconnected';
+    console.error(`WebSocket Error for ${device.name}: `, error);
+  };
+  
+  ws.onmessage = function(event) {
+    if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
+  };
 }
 
 function initializeAllConnections() {
-    ESP32_DEVICES.forEach(device => connectToDevice(device));
+  ESP32_DEVICES.forEach(device => connectToDevice(device));
 }
 
 initializeAllConnections();
