@@ -961,18 +961,23 @@ function tagRunnerOut(runner) {
 
   saveState();
   runner.isOut = true;
-  runner.isMoving = false; // An "out" runner is no longer considered to be moving.
-  
+  runner.isMoving = false;
+
   addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
   logic.recordOut();
 
-  // The main animation loop (`move_all_runners` generator) is now the single source of truth
-  // for managing base lights during animation. By setting the runner's state here,
-  // the generator will automatically handle the visual cleanup on the next frame.
-  // This prevents conflicting logic and ensures trailing runners' base lights remain active.
+  // FIX: Immediately update base light after tag out
+  const base = runner.base;
+  const stillOccupied = logic.runners.some(r => r.base === base && !r.isOut);
+  if (stillOccupied) {
+    logic.set_base_red(base);
+  } else {
+    logic.set_base_default(base);
+  }
 
   redrawNeeded = true;
 }
+
 document.querySelectorAll(".mini-base").forEach(baseElement => {
  baseElement.addEventListener("click", () => {
  const base = baseElement.getAttribute("data-base");
