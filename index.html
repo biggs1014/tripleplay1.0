@@ -533,19 +533,14 @@ class GameLogic {
  }
  add_runner(base_name) {
     saveState();
-
-    // Check 1: Is a runner already ON this base?
     if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
         addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
         return;
     }
-
-    // Check 2: Is a runner currently MOVING to this base?
     if (this.runners.some(r => r.isMoving && r.target === base_name)) {
         addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
         return;
     }
-
     const pos = this.get_runner_position(base_name);
     const target = this.get_next_base(base_name);
     let player = { Name: "RANDOM", Speed: 70, "Team Name": "Default" };
@@ -668,7 +663,8 @@ class GameLogic {
             yield;
         }
 
-        // --- REVISED LOGIC FOR HANDLING ARRIVALS ---
+        // --- CORRECTED ARRIVAL LOGIC ---
+        // STAGE 1: Update all runner positions first. Do not check for outs yet.
         for (const t of transitions) {
             const runner = t.runner;
             if (runner.isOut) continue;
@@ -678,7 +674,11 @@ class GameLogic {
             runner.current_fraction = 0;
             runner.isMoving = false;
             logic.dynamic_flash_ms[runner.base] = logic.DEFAULT_FLASH_MS;
+        }
 
+        // STAGE 2: Now that all runners are in their final positions, check for outs and runs.
+        const runnersToProcess = transitions.map(t => t.runner).filter(r => !r.isOut);
+        for(const runner of runnersToProcess) {
             if (runner.base === "home") {
                 addAnimationLog(`<b>${runner.player.Name}</b> reached HOME => scoring a run!`);
                 logic.scoreRun();
@@ -698,6 +698,7 @@ class GameLogic {
             }
         }
         
+        // STAGE 3: Final loop to set the visual state of all bases correctly.
         for (const base_name in logic.base_states) {
             const isOccupied = logic.runners.some(r => r.base === base_name && !r.isOut);
             if (isOccupied) {
