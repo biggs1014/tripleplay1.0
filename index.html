@@ -27,7 +27,7 @@ body {
  justify-content: center;
  align-items: center;
  min-height: 100vh;
- min-height: 100dvh; /* Dynamic viewport height for mobile */
+ min-height: 100dvh;
 }
 .main-container {
  min-height: 100vh;
@@ -38,7 +38,7 @@ body {
  display: flex;
  flex-direction: column;
  align-items: center;
- overflow: hidden; /* Prevent body scrollbars */
+ overflow: hidden;
  position: relative;
  padding: 0;
 }
@@ -48,7 +48,7 @@ body {
  display: flex;
  flex-direction: column;
  align-items: center;
- overflow-y: auto; /* Main scroll for portrait mode */
+ overflow-y: auto;
  overflow-x: hidden;
  padding-top: 18px;
 }
@@ -123,7 +123,7 @@ button:hover, button:focus-visible {
  opacity: 0.4; color: #dbe5ff; border-color: #555; background: #444; cursor: not-allowed;
 }
 
-/* FIX: Scoreboard is now a flex container that wraps its children. This is key to the new layout. */
+/* FIX: The scoreboard is now a COLUMN flex container, creating a reliable top/bottom structure. */
 #scoreboard-container {
  width: 99%;
  max-width: 470px;
@@ -132,20 +132,25 @@ button:hover, button:focus-visible {
  background: linear-gradient(95deg, var(--tv-blue) 60%, var(--tv-gray) 100%);
  box-shadow: 0 2.5px 20px #000b, 0 1.5px 0px #55ff8c77 inset;
  display: flex;
- flex-wrap: wrap; /* Allows the mini-bases to wrap to the next line */
- justify-content: center; /* Center the content horizontally */
- overflow: hidden;
+ flex-direction: column; /* This is the key change for a stable layout */
  border: 3.5px solid #1e2234;
- align-items: stretch;
  font-family: 'Oswald', 'Roboto', 'Arial', sans-serif;
- padding-bottom: 5px; /* Add a little space at the bottom */
+ padding: 5px; /* Consistent padding */
 }
+
+/* FIX: New wrapper for the top row of the scoreboard. */
+#scoreboard-top-row {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
 .scoreboard-section {
  flex: 1;
  display: flex;
  align-items: center;
  justify-content: center;
- padding: 14px 10px 10px 10px;
+ padding: 10px;
  min-width: 0;
 }
 .scoreboard-section span:first-child { margin-right: 13px; }
@@ -190,17 +195,15 @@ button:hover, button:focus-visible {
  color: #e7e8fa;
  text-shadow: 0 1.5px #121820;
 }
-
-/* FIX: Styles for the mini-base container, now living inside the scoreboard. */
 #mini-base-container {
  position: relative;
- width: 100%; /* Take up the full width of the scoreboard */
- height: 65px; /* Reduced height to be more compact */
- margin: 0 auto; /* No vertical margin needed anymore */
+ width: 100%;
+ height: 65px;
+ margin-top: 8px; /* Add some space between the score and the bases */
 }
 .mini-base {
  position: absolute;
- width: 22px; /* Slightly smaller to fit better */
+ width: 22px;
  height: 22px;
  background-color: #ecf3fa;
  border: 2px solid #9bb4d5;
@@ -209,8 +212,6 @@ button:hover, button:focus-visible {
  cursor: pointer;
  transition: background 0.13s, border 0.13s, box-shadow 0.14s;
 }
-
-/* FIX: Adjusted absolute positions to fit inside the new, smaller container. */
 .base-second { bottom: 45px; left: 50%; transform: translate(-50%, 0) rotate(45deg); }
 .base-home { bottom: 0; left: 50%; transform: translate(-50%, 0) rotate(45deg); }
 .base-first { bottom: 22px; left: calc(50% + 28px); transform: translate(-50%, 0) rotate(45deg); }
@@ -246,7 +247,7 @@ button:hover, button:focus-visible {
 @media (max-width: 660px) {
  canvas { max-width: 99vw; }
  #scoreboard-container { max-width: 99vw; }
- .scoreboard-section { font-size: 1em; padding: 8px 2px 7px 2px;}
+ .scoreboard-section { font-size: 1em; padding: 8px 2px;}
  button { font-size: 0.95em; padding: 9px 13px; }
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
@@ -306,24 +307,25 @@ button:hover, button:focus-visible {
                 <button id="toggle-preset-btn">SWITCH PRESET (MLB)</button>
             </div>
             
-            <!-- FIX: HTML has been restructured. The mini-bases are now INSIDE the scoreboard for a more compact and logical layout. -->
             <div id="scoreboard-container">
-                <div class="scoreboard-section scoreboard-left">
-                    <span id="away-team-name">AWAY</span>
-                    <span id="away-score">0</span>
-                </div>
-                <div class="scoreboard-section scoreboard-middle">
-                    <div class="inning-display">
-                        <span id="inning-arrow">▲</span>
-                        <span id="inning-number">1</span>
+                <!-- FIX: Added a wrapper div for a stable two-row layout -->
+                <div id="scoreboard-top-row">
+                    <div class="scoreboard-section scoreboard-left">
+                        <span id="away-team-name">AWAY</span>
+                        <span id="away-score">0</span>
                     </div>
-                    <div id="outs-display">0 OUTS</div>
+                    <div class="scoreboard-section scoreboard-middle">
+                        <div class="inning-display">
+                            <span id="inning-arrow">▲</span>
+                            <span id="inning-number">1</span>
+                        </div>
+                        <div id="outs-display">0 OUTS</div>
+                    </div>
+                    <div class="scoreboard-section scoreboard-right">
+                        <span id="home-team-name">HOME</span>
+                        <span id="home-score">0</span>
+                    </div>
                 </div>
-                <div class="scoreboard-section scoreboard-right">
-                    <span id="home-team-name">HOME</span>
-                    <span id="home-score">0</span>
-                </div>
-                <!-- The mini-base container now lives here -->
                 <div id="mini-base-container">
                     <div class="mini-base base-third" id="mini-base-third" data-base="third" title="Click to add runner to Third"></div>
                     <div class="mini-base base-second" id="mini-base-second" data-base="second" title="Click to add runner to Second"></div>
@@ -496,7 +498,7 @@ class Runner {
   this.isMoving = false;
   this.logoImage = null;
   this.logoLoaded = false;
-  this.updateSpeed(); // Initial speed calculation
+  this.updateSpeed();
   this.loadLogo();
  }
 
@@ -1032,7 +1034,7 @@ function update_gui() {
  }
  requestAnimationFrame(update_gui);
 }
-update_gui(); // Start the animation loop
+update_gui();
 
 setInterval(() => {
  updateScoreboard();
