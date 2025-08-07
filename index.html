@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <title>TRIPLE PLAY 1.0 (Corrected)</title>
+ <title>TRIPLE PLAY 1.0 (Completed & Responsive)</title>
  <style>
 :root {
  --tv-blue: #212b47;
@@ -17,32 +17,41 @@
  --tv-shadow: 0 6px 32px #0008;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+    /* Ensures the layout smoothly adapts to size changes */
+    height: 100%;
+}
 body {
  font-family: 'Roboto', 'Arial', sans-serif;
  background: linear-gradient(135deg, #0b1623 0%, #24365a 100%);
- display: flex; justify-content: center; align-items: center; min-height: 100vh;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ min-height: 100vh;
+ min-height: 100dvh; /* Dynamic viewport height for mobile */
 }
 .main-container {
  min-height: 100vh;
+ min-height: 100dvh;
  width: 100vw;
  max-width: 100vw;
  background: linear-gradient(120deg, #232a35 20%, #101522 100%);
  display: flex;
  flex-direction: column;
  align-items: center;
- overflow: auto;
+ overflow: hidden; /* Prevent body scrollbars */
  position: relative;
  padding: 0;
 }
 #game-container {
  width: 100%;
- max-width: 640px;
- margin: 0 auto;
- background: none;
+ height: 100%;
  display: flex;
  flex-direction: column;
  align-items: center;
- padding-top: 18px; /* Added padding to give top content some space */
+ overflow-y: auto; /* Main scroll for portrait mode */
+ overflow-x: hidden;
+ padding-top: 18px;
 }
 canvas {
  border-radius: 18px;
@@ -54,9 +63,18 @@ canvas {
  margin-bottom: 18px;
  box-shadow: var(--tv-shadow);
  display: block;
+ touch-action: none; /* Prevents scrolling while interacting with canvas on mobile */
+}
+#controls-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px; /* Give some horizontal space */
 }
 #action-buttons {
  width: 100%;
+ max-width: 630px;
  display: flex;
  flex-wrap: wrap;
  justify-content: center;
@@ -199,6 +217,7 @@ button:hover, button:focus-visible {
  max-height: 64px;
  overflow-y: auto;
  width: 93%;
+ max-width: 500px;
  background: #232a35;
  color: var(--tv-green);
  border: 2px solid #253048;
@@ -214,6 +233,10 @@ button:hover, button:focus-visible {
 .status-connected { background-color: var(--tv-green); }
 .status-connecting { background-color: var(--tv-lime); }
 .status-disconnected { background-color: var(--tv-red); }
+
+/* --- RESPONSIVE STYLES --- */
+
+/* Smaller phone screens (portrait) */
 @media (max-width: 660px) {
  canvas { max-width: 99vw; }
  #scoreboard-container { max-width: 99vw; }
@@ -221,82 +244,131 @@ button:hover, button:focus-visible {
  button { font-size: 0.95em; padding: 9px 13px; }
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
+
+/* Landscape orientation (e.g., iPad horizontal) */
+@media (orientation: landscape) and (min-height: 500px) {
+    .main-container {
+        overflow: hidden; /* Prevent scrolling on the main body */
+    }
+    #game-container {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+        height: 100%;
+        overflow: hidden; /* This container does not scroll */
+    }
+    canvas {
+        flex-shrink: 0;
+        width: auto;
+        height: 95%;
+        max-width: none;
+        max-height: calc(100dvh - 40px);
+        margin-bottom: 0;
+    }
+    #controls-panel {
+        flex-grow: 1;
+        height: calc(100dvh - 40px); /* Fill available height minus padding */
+        overflow-y: auto; /* Allow this panel to scroll if content overflows */
+        width: 450px;
+        max-width: 45%;
+        padding: 0 15px;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    #action-buttons, #scoreboard-container, #mini-base-container, #animation-log, .slider-container {
+        width: 100%;
+        max-width: 100%; /* Override max-widths set for portrait */
+    }
+    #animation-log {
+        max-height: 150px; /* Allow more log history */
+    }
+}
  </style>
  <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono|Oswald:700&display=swap" rel="stylesheet">
 </head>
 <body>
  <div class="main-container">
- <div id="game-container">
-
-  <canvas id="baseballCanvas"></canvas>
-  <div id="action-buttons">
-  <button id="undo-btn" title="Undo Last" disabled>UNDO</button>
-  <button onclick="moveRunners()">MOVE ALL RUNNERS</button>
-  <button onclick="resetScenario()">RESET</button>
-  <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
-  <button id="toggle-preset-btn">SWITCH PRESET (MLB)</button>
-  </div>
-  <div id="scoreboard-container">
-  <div class="scoreboard-section scoreboard-left">
-   <span id="away-team-name">AWAY</span>
-   <span id="away-score">0</span>
-  </div>
-  <div class="scoreboard-section scoreboard-middle">
-   <div class="inning-display">
-   <span id="inning-arrow">▲</span>
-   <span id="inning-number">1</span>
-   </div>
-   <div id="outs-display">0 OUTS</div>
-  </div>
-  <div class="scoreboard-section scoreboard-right">
-   <span id="home-team-name">HOME</span>
-   <span id="home-score">0</span>
-  </div>
-  </div>
-  <div id="mini-base-container">
-  <div class="mini-base base-third" id="mini-base-third" data-base="third"></div>
-  <div class="mini-base base-second" id="mini-base-second" data-base="second"></div>
-  <div class="mini-base base-first" id="mini-base-first" data-base="first"></div>
-  <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
-  </div>
-
-  <div style="width: 96%; max-width: 500px; margin: 20px auto 8px auto; text-align:center;">
-   <label for="runnerSpeedSlider" style="color:#fff; font-weight:bold;">Runner Pace (Elite ←→ Slow):</label>
-   <input type="range" id="runnerSpeedSlider" min="3.8" max="4.7" step="0.01" value="4.3" style="width:60%;">
-   <span id="runnerSpeedDisplay" style="color:#a6ff4d; margin-left:10px;">4.30s</span>
-  </div>
-
-  <div id="animation-log"></div>
-  <div style="display: flex; justify-content: center; margin-top:7px;">
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-1</span>
-   <div id="status-display-1" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-2</span>
-   <div id="status-display-2" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-3</span>
-   <div id="status-display-3" class="status-indicator status-connecting"></div>
-  </div>
-  <div style="text-align:center; margin: 0 10px;">
-   <span style="color:white; display:block;">ESP32-4</span>
-   <div id="status-display-4" class="status-indicator status-connecting"></div>
-  </div>
-  </div>
- </div>
+    <div id="game-container">
+        <canvas id="baseballCanvas"></canvas>
+        <!-- This new panel groups all controls for better responsive layout -->
+        <div id="controls-panel">
+            <div id="action-buttons">
+                <button id="undo-btn" title="Undo Last (Z)" disabled>UNDO</button>
+                <button onclick="moveRunners()" title="Spacebar or Enter">MOVE ALL RUNNERS</button>
+                <button onclick="resetScenario()" title="Escape">RESET</button>
+                <button onclick="speedTestRunners()">TEST: FASTER RUNNERS</button>
+                <button id="toggle-preset-btn">SWITCH PRESET (MLB)</button>
+            </div>
+            <div id="scoreboard-container">
+                <div class="scoreboard-section scoreboard-left">
+                    <span id="away-team-name">AWAY</span>
+                    <span id="away-score">0</span>
+                </div>
+                <div class="scoreboard-section scoreboard-middle">
+                    <div class="inning-display">
+                        <span id="inning-arrow">▲</span>
+                        <span id="inning-number">1</span>
+                    </div>
+                    <div id="outs-display">0 OUTS</div>
+                </div>
+                <div class="scoreboard-section scoreboard-right">
+                    <span id="home-team-name">HOME</span>
+                    <span id="home-score">0</span>
+                </div>
+            </div>
+            <div id="mini-base-container">
+                <div class="mini-base base-third" id="mini-base-third" data-base="third" title="Click to add runner to Third"></div>
+                <div class="mini-base base-second" id="mini-base-second" data-base="second" title="Click to add runner to Second"></div>
+                <div class="mini-base base-first" id="mini-base-first" data-base="first" title="Click to add runner to First"></div>
+                <div class="mini-base base-home" id="mini-base-home" data-base="home" title="Click to add runner to Home"></div>
+            </div>
+            <div class="slider-container" style="width: 96%; max-width: 500px; margin: 20px auto 8px auto; text-align:center;">
+                <label for="runnerSpeedSlider" style="color:#fff; font-weight:bold;">Runner Pace (Elite ←→ Slow):</label>
+                <input type="range" id="runnerSpeedSlider" min="3.8" max="4.7" step="0.01" value="4.3" style="width:60%;">
+                <span id="runnerSpeedDisplay" style="color:#a6ff4d; margin-left:10px;">4.30s</span>
+            </div>
+            <div id="animation-log"></div>
+            <div style="display: flex; justify-content: center; margin-top:7px; padding-bottom: 20px;">
+                <div style="text-align:center; margin: 0 10px;">
+                    <span style="color:white; display:block;">ESP32-1</span>
+                    <div id="status-display-1" class="status-indicator status-connecting" title="TRIPLE PLAY HUB Status"></div>
+                </div>
+                <div style="text-align:center; margin: 0 10px;">
+                    <span style="color:white; display:block;">ESP32-2</span>
+                    <div id="status-display-2" class="status-indicator status-connecting"></div>
+                </div>
+                <div style="text-align:center; margin: 0 10px;">
+                    <span style="color:white; display:block;">ESP32-3</span>
+                    <div id="status-display-3" class="status-indicator status-connecting"></div>
+                </div>
+                <div style="text-align:center; margin: 0 10px;">
+                    <span style="color:white; display:block;">ESP32-4</span>
+                    <div id="status-display-4" class="status-indicator status-connecting"></div>
+                </div>
+            </div>
+        </div>
+    </div>
  </div>
 <script>
-// --- GLOBAL CONFIGURATION ---
-const DEBUG_MODE = true; // Enables detailed console logging for development and troubleshooting.
-const DEVICE_PIXEL_RATIO_CAP = 2; // Caps rendering resolution on high-DPR screens (like Retina) to 2x. Prevents performance issues on 4K+ monitors.
-const DOM_UPDATE_INTERVAL = 250; // How often (in milliseconds) to update non-canvas elements like the scoreboard and mini-bases. A lower value is more responsive but uses more CPU.
-const BASE_LABEL_FONT_SCALE = 0.02; // Font size for base labels (Home, First, etc.) as a percentage of the canvas width.
-const PLAYER_NAME_FONT_SCALE = 0.035; // Font size for player names above runner circles, as a percentage of the canvas width.
-const GAME_FPS = 60; // The target frames per second for all animations. This is crucial for consistent animation speed across different devices.
-const BASE_TO_BASE_TIME_RATIO = 0.85; // A runner with a leadoff is faster than one starting from a standstill. This makes base-to-base sprints 85% of the time it takes to get from home to first.
+// --- GLOBAL CONFIGURATION (Defined and Explained) ---
+/** @const {boolean} DEBUG_MODE - Enables detailed console logging for development and troubleshooting. */
+const DEBUG_MODE = true;
+/** @const {number} DEVICE_PIXEL_RATIO_CAP - Caps rendering resolution on high-DPR screens (like Retina) to 2x. Prevents performance issues on 4K+ monitors by avoiding unnecessarily large canvas buffers. */
+const DEVICE_PIXEL_RATIO_CAP = 2;
+/** @const {number} DOM_UPDATE_INTERVAL - How often (in milliseconds) to update non-canvas elements like the scoreboard and mini-bases. A lower value is more responsive but uses slightly more CPU. 250ms is a good balance. */
+const DOM_UPDATE_INTERVAL = 250;
+/** @const {number} BASE_LABEL_FONT_SCALE - Font size for base labels (Home, First, etc.) as a percentage of the canvas width. Allows text to scale with the canvas. */
+const BASE_LABEL_FONT_SCALE = 0.02;
+/** @const {number} PLAYER_NAME_FONT_SCALE - Font size for player names above runner circles, as a percentage of the canvas width. */
+const PLAYER_NAME_FONT_SCALE = 0.035;
+/** @const {number} GAME_FPS - The target frames per second for all animations. This is crucial for consistent animation speed across different devices. All speed calculations are based on this value. */
+const GAME_FPS = 60;
+/** @const {number} BASE_TO_BASE_TIME_RATIO - A runner with a leadoff is faster than one starting from a standstill. This makes base-to-base sprints this percentage (e.g., 85%) of the time it takes to get from home to first. */
+const BASE_TO_BASE_TIME_RATIO = 0.85;
 
+// Helper functions
 function calcSpeed(seconds) { return 1 / (seconds * GAME_FPS); }
 function lerp(a, b, t) { return a + (b - a) * t; }
 
@@ -305,38 +377,40 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 const ESP32_DEVICES = [
  { name: "TRIPLE PLAY HUB", ip: "192.168.4.1", id: "status-display-1" }
 ];
+// Hide unused status indicators
 document.getElementById('status-display-2').parentElement.style.display = 'none';
 document.getElementById('status-display-3').parentElement.style.display = 'none';
 document.getElementById('status-display-4').parentElement.style.display = 'none';
 let esp_websockets = {};
 
-// --- Speed presets use time in seconds ---
+// --- Speed presets use time in seconds (lower time = faster runner) ---
 const SPEED_PRESETS = [
-  {
-    name: "MLB",
-    eliteTime: 3.8,
-    avgTime: 4.3,
-    slowTime: 4.7,
-  },
-  {
-    name: "High School",
-    eliteTime: 4.2,
-    avgTime: 4.6,
-    slowTime: 5.2,
-  },
-  {
-    name: "Little League",
-    eliteTime: 4.8,
-    avgTime: 5.5,
-    slowTime: 6.5,
-  }
+ {
+  name: "MLB",
+  eliteTime: 3.8,
+  avgTime: 4.3,
+  slowTime: 4.7,
+ },
+ {
+  name: "High School",
+  eliteTime: 4.2,
+  avgTime: 4.6,
+  slowTime: 5.2,
+ },
+ {
+  name: "Little League",
+  eliteTime: 4.8,
+  avgTime: 5.5,
+  slowTime: 6.5,
+ }
 ];
 let currentPresetIndex = 0;
 let currentSpeedPreset = SPEED_PRESETS[currentPresetIndex];
 
-// ---- The single source of truth is a time in seconds ----
+// ---- The single source of truth for runner speed is a time in seconds ----
 let targetHomeToFirstTime = currentSpeedPreset.avgTime;
 
+// --- GLOBAL VARIABLES & DOM REFERENCES ---
 let allPlayers = [];
 const container = document.getElementById("game-container");
 const logElement = document.getElementById("animation-log");
@@ -364,21 +438,20 @@ function undo() {
  addAnimationLog("Undid last action.");
 }
 
-// --- FETCHING ASSETS ---
-
+// --- ASSET FETCHING ---
 fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/team_logos.json')
  .then(resp => resp.json())
  .then(data => {
- teamLogos = data;
- addAnimationLog(`Team logos loaded from GitHub: ${Object.keys(teamLogos).length} teams.`);
+  teamLogos = data;
+  addAnimationLog(`Team logos loaded from GitHub: ${Object.keys(teamLogos).length} teams.`);
  })
  .catch(err => addAnimationLog("ERROR: Failed to load team logos from GitHub."));
 
 fetch('https://raw.githubusercontent.com/biggs1014/tripleplay-assets/main/all_players_stats.json')
  .then(resp => resp.json())
  .then(data => {
- allPlayers = data;
- addAnimationLog("MLB player data loaded from GitHub: " + allPlayers.length + " players.");
+  allPlayers = data;
+  addAnimationLog("MLB player data loaded from GitHub: " + allPlayers.length + " players.");
  })
  .catch(() => addAnimationLog("Failed to load player stats from GitHub. Using defaults."));
 
@@ -403,17 +476,17 @@ function addAnimationLog(message) {
 
 class Runner {
  constructor(pos, base_name, target, player) {
- this.pos = pos;
- this.base = base_name;
- this.target = target;
- this.player = player || { Name: "RANDOM", Speed: 75, "Team Name": "Default" };
- this.current_fraction = 0;
- this.isOut = false;
- this.isMoving = false;
- this.logoImage = null;
- this.logoLoaded = false;
- this.updateSpeed(); // Initial speed calculation
- this.loadLogo();
+  this.pos = pos;
+  this.base = base_name;
+  this.target = target;
+  this.player = player || { Name: "RANDOM", Speed: 75, "Team Name": "Default" };
+  this.current_fraction = 0;
+  this.isOut = false;
+  this.isMoving = false;
+  this.logoImage = null;
+  this.logoLoaded = false;
+  this.updateSpeed(); // Initial speed calculation
+  this.loadLogo();
  }
 
  // This method calculates speed based on time. It is called
@@ -422,10 +495,10 @@ class Runner {
   let runTime;
   // Determine base run time based on slider
   if (this.base === "home") {
-    runTime = targetHomeToFirstTime;
+   runTime = targetHomeToFirstTime;
   } else {
-    // Base-to-base runs are faster due to leadoffs
-    runTime = targetHomeToFirstTime * BASE_TO_BASE_TIME_RATIO;
+   // Base-to-base runs are faster due to leadoffs
+   runTime = targetHomeToFirstTime * BASE_TO_BASE_TIME_RATIO;
   }
 
   // Modify time based on the player's individual speed stat
@@ -438,20 +511,19 @@ class Runner {
   this.speed = calcSpeed(runTime);
  }
 
-
  loadLogo() {
- const fullTeamName = this.player["Team Name"];
- if (fullTeamName && teamLogos[fullTeamName]) {
-  const svgText = teamLogos[fullTeamName];
-  const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
-  const img = new Image();
-  img.onload = () => { this.logoLoaded = true; redrawNeeded = true; };
-  img.onerror = () => { console.error(`Failed to load logo image for ${fullTeamName}`); };
-  img.src = svgUrl;
-  this.logoImage = img;
- } else if (DEBUG_MODE && fullTeamName) {
-  console.log(`Logo not found for team: "${fullTeamName}"`);
- }
+  const fullTeamName = this.player["Team Name"];
+  if (fullTeamName && teamLogos[fullTeamName]) {
+   const svgText = teamLogos[fullTeamName];
+   const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgText)}`;
+   const img = new Image();
+   img.onload = () => { this.logoLoaded = true; redrawNeeded = true; };
+   img.onerror = () => { console.error(`Failed to load logo image for ${fullTeamName}`); };
+   img.src = svgUrl;
+   this.logoImage = img;
+  } else if (DEBUG_MODE && fullTeamName && fullTeamName !== "Default") {
+   console.log(`Logo not found for team: ${fullTeamName}`);
+  }
  }
 
  clone() { return new Runner([...this.pos], this.base, this.target, { ...this.player }); }
@@ -482,161 +554,160 @@ class Runner {
  }
 }
 
-
 class GameLogic {
  constructor(base_coords) {
- this.base_coords = base_coords;
- this.OFF = 0; this.FLASHING = 1; this.RED = 2;
- this.DEFAULT_FLASH_MS = 400; this.MIN_FLASH_MS = 90;
- this.base_states = {}; this.base_colors = {};
- this.last_toggle_time = {}; this.dynamic_flash_ms = {};
- this.runners = []; this.homeScore = 0; this.awayScore = 0;
- this.outs = 0; this.inning = 1; this.topOfInning = true;
- for (const name in base_coords) {
-  this.base_states[name] = this.OFF;
-  this.base_colors[name] = "#f4f5fa";
-  this.last_toggle_time[name] = performance.now();
-  this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
- }
+  this.base_coords = base_coords;
+  this.OFF = 0; this.FLASHING = 1; this.RED = 2;
+  this.DEFAULT_FLASH_MS = 400; this.MIN_FLASH_MS = 90;
+  this.base_states = {}; this.base_colors = {};
+  this.last_toggle_time = {}; this.dynamic_flash_ms = {};
+  this.runners = []; this.homeScore = 0; this.awayScore = 0;
+  this.outs = 0; this.inning = 1; this.topOfInning = true;
+  for (const name in base_coords) {
+   this.base_states[name] = this.OFF;
+   this.base_colors[name] = "#f4f5fa";
+   this.last_toggle_time[name] = performance.now();
+   this.dynamic_flash_ms[name] = this.DEFAULT_FLASH_MS;
+  }
  }
 
  sendAllBaseStates() {
- const statePayload = {
-  home: this.base_states.home,
-  first: this.base_states.first,
-  second: this.base_states.second,
-  third: this.base_states.third
- };
- const jsonString = JSON.stringify(statePayload);
- for (const ip in esp_websockets) {
-  const ws = esp_websockets[ip];
-  if (ws && ws.readyState === WebSocket.OPEN) {
-  ws.send(jsonString);
-  if (DEBUG_MODE) console.log(`Sent to ${ip}:`, jsonString);
+  const statePayload = {
+   home: this.base_states.home,
+   first: this.base_states.first,
+   second: this.base_states.second,
+   third: this.base_states.third
+  };
+  const jsonString = JSON.stringify(statePayload);
+  for (const ip in esp_websockets) {
+   const ws = esp_websockets[ip];
+   if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(jsonString);
+    if (DEBUG_MODE) console.log(`Sent to ${ip}:`, jsonString);
+   }
   }
- }
  }
 
  set_base_default(base_name) {
- this.base_states[base_name] = this.OFF;
- this.base_colors[base_name] = "#f4f5fa";
- this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
- redrawNeeded = true;
- this.sendAllBaseStates();
+  this.base_states[base_name] = this.OFF;
+  this.base_colors[base_name] = "#f4f5fa";
+  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
+  redrawNeeded = true;
+  this.sendAllBaseStates();
  }
  set_base_flashing(base_name) {
- this.base_states[base_name] = this.FLASHING;
- if (!this.last_toggle_time[base_name]) this.last_toggle_time[base_name] = performance.now();
- if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#f4f5fa") {
-  this.base_colors[base_name] = "#2ecc40";
- }
- redrawNeeded = true;
- this.sendAllBaseStates();
+  this.base_states[base_name] = this.FLASHING;
+  if (!this.last_toggle_time[base_name]) this.last_toggle_time[base_name] = performance.now();
+  if (this.base_colors[base_name] !== "#2ecc40" && this.base_colors[base_name] !== "#f4f5fa") {
+   this.base_colors[base_name] = "#2ecc40";
+  }
+  redrawNeeded = true;
+  this.sendAllBaseStates();
  }
  set_base_red(base_name) {
- this.base_states[base_name] = this.RED;
- this.base_colors[base_name] = "#d81c2b";
- this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
- redrawNeeded = true;
- this.sendAllBaseStates();
+  this.base_states[base_name] = this.RED;
+  this.base_colors[base_name] = "#d81c2b";
+  this.dynamic_flash_ms[base_name] = this.DEFAULT_FLASH_MS;
+  redrawNeeded = true;
+  this.sendAllBaseStates();
  }
 
  clearBases() {
- this.runners = [];
- for (const b in this.base_states) this.set_base_default(b);
- addAnimationLog("All bases cleared.");
- redrawNeeded = true;
+  this.runners = [];
+  for (const b in this.base_states) this.set_base_default(b);
+  addAnimationLog("All bases cleared.");
+  redrawNeeded = true;
  }
  recordOut() {
- this.outs++;
- addAnimationLog(`Out recorded! Total outs: ${this.outs}`);
- if (this.outs >= 3) {
-  this.outs = 0;
-  addAnimationLog("Three outs! Switching half-inning...");
-  this.nextInning();
- }
- redrawNeeded = true;
+  this.outs++;
+  addAnimationLog(`Out recorded! Total outs: ${this.outs}`);
+  if (this.outs >= 3) {
+   this.outs = 0;
+   addAnimationLog("Three outs! Switching half-inning...");
+   this.nextInning();
+  }
+  redrawNeeded = true;
  }
  nextInning() {
- if (this.topOfInning) {
-  this.topOfInning = false;
-  addAnimationLog(`Now entering bottom of inning ${this.inning}`);
- } else {
-  this.inning++;
-  this.topOfInning = true;
-  addAnimationLog(`Now entering top of inning ${this.inning}`);
- }
- this.clearBases();
- redrawNeeded = true;
+  if (this.topOfInning) {
+   this.topOfInning = false;
+   addAnimationLog(`Now entering bottom of inning ${this.inning}`);
+  } else {
+   this.inning++;
+   this.topOfInning = true;
+   addAnimationLog(`Now entering top of inning ${this.inning}`);
+  }
+  this.clearBases();
+  redrawNeeded = true;
  }
  scoreRun() {
- if (this.topOfInning) {
-  this.awayScore++;
-  addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
- } else {
-  this.homeScore++;
-  addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
- }
- redrawNeeded = true;
+  if (this.topOfInning) {
+   this.awayScore++;
+   addAnimationLog(`Away team scores! New score => Away: ${this.awayScore}`);
+  } else {
+   this.homeScore++;
+   addAnimationLog(`Home team scores! New score => Home: ${this.homeScore}`);
+  }
+  redrawNeeded = true;
  }
  reset_all() {
- this.homeScore = 0; this.awayScore = 0; this.outs = 0;
- this.inning = 1; this.topOfInning = true;
- this.clearBases();
- addAnimationLog("Game state has been fully reset.");
- redrawNeeded = true;
+  this.homeScore = 0; this.awayScore = 0; this.outs = 0;
+  this.inning = 1; this.topOfInning = true;
+  this.clearBases();
+  addAnimationLog("Game state has been fully reset.");
+  redrawNeeded = true;
  }
  add_runner(base_name) {
- saveState();
- if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
-  addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
-  return;
- }
- if (this.runners.some(r => !r.isOut && r.isMoving && r.target === base_name)) {
-  addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
-  return;
- }
- const pos = this.get_runner_position(base_name);
- const target = this.get_next_base(base_name);
- let player = { Name: "RANDOM", Speed: 75, "Team Name": "Default" };
- if (allPlayers.length > 0) {
-  player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
- }
- const runner = new Runner(pos, base_name, target, player);
- this.runners.push(runner);
- this.set_base_red(base_name);
- addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
- redrawNeeded = true;
+  saveState();
+  if (this.runners.some((r) => r.base === base_name && !r.isOut)) {
+   addAnimationLog(`Cannot add runner: ${base_name.toUpperCase()} is already occupied.`);
+   return;
+  }
+  if (this.runners.some(r => !r.isOut && r.isMoving && r.target === base_name)) {
+   addAnimationLog(`Cannot add runner: A runner is already advancing to ${base_name.toUpperCase()}.`);
+   return;
+  }
+  const pos = this.get_runner_position(base_name);
+  const target = this.get_next_base(base_name);
+  let player = { Name: "RANDOM", Speed: 75, "Team Name": "Default" };
+  if (allPlayers.length > 0) {
+   player = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+  }
+  const runner = new Runner(pos, base_name, target, player);
+  this.runners.push(runner);
+  this.set_base_red(base_name);
+  addAnimationLog(`Runner added at ${base_name.toUpperCase()}: <b>${runner.player.Name}</b> (${runner.player["Team Name"]}, Speed: ${runner.player.Speed})`);
+  redrawNeeded = true;
  }
  get_runner_position(base_name) { return [...this.base_coords[base_name]]; }
  get_next_base(current_base) {
- switch (current_base) {
-  case "home": return "first";
-  case "first": return "second";
-  case "second": return "third";
-  case "third": return "home";
-  default: "home";
- }
+  switch (current_base) {
+   case "home": return "first";
+   case "first": return "second";
+   case "second": return "third";
+   case "third": return "home";
+   default: "home";
+  }
  }
  remove_runner_from_base(runner) {
- const idx = this.runners.indexOf(runner);
- if (idx > -1) {
-  this.runners.splice(idx, 1);
-  redrawNeeded = true;
- }
- }
- update_flashing() {
- const now = performance.now();
- for (const base_name in this.base_states) {
-  if (this.base_states[base_name] === this.FLASHING) {
-  const elapsed = now - this.last_toggle_time[base_name];
-  if (elapsed >= this.dynamic_flash_ms[base_name]) {
-   this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
-   this.last_toggle_time[base_name] = now;
+  const idx = this.runners.indexOf(runner);
+  if (idx > -1) {
+   this.runners.splice(idx, 1);
    redrawNeeded = true;
   }
-  }
  }
+ update_flashing() {
+  const now = performance.now();
+  for (const base_name in this.base_states) {
+   if (this.base_states[base_name] === this.FLASHING) {
+    const elapsed = now - this.last_toggle_time[base_name];
+    if (elapsed >= this.dynamic_flash_ms[base_name]) {
+     this.base_colors[base_name] = this.base_colors[base_name] === "#2ecc40" ? "#f4f5fa" : "#2ecc40";
+     this.last_toggle_time[base_name] = now;
+     redrawNeeded = true;
+    }
+   }
+  }
  }
 
  _resolveRunnerArrival(runner) {
@@ -671,8 +742,6 @@ class GameLogic {
   }
  }
 
- // --- CORRECTED FUNCTION ---
- // The following function has been modified to fix the runner race condition.
  move_all_runners() {
   saveState();
   const runnersToMove = this.runners.filter((r) => !r.isOut && !r.isMoving);
@@ -707,7 +776,7 @@ class GameLogic {
    while (!allFinished) {
     allFinished = true;
     transitions = transitions.filter(t => !t.runner.isOut);
-    
+
     for (const t of transitions) {
      const finishedThisFrame = t.runner.updateMovement(t.start, t.end);
      if (!finishedThisFrame) {
@@ -719,7 +788,7 @@ class GameLogic {
      if (logic.base_states[base_name] === logic.FLASHING) {
       const runnersApproaching = transitions.filter(t => t.runner.target === base_name && !t.runner.isOut);
       if (runnersApproaching.length > 0) {
-       const closestRunner = runnersApproaching.reduce((prev, curr) => 
+       const closestRunner = runnersApproaching.reduce((prev, curr) =>
         (prev.runner.current_fraction > curr.runner.current_fraction) ? prev : curr
        );
        const frac = Math.min(closestRunner.runner.current_fraction, 1);
@@ -734,67 +803,59 @@ class GameLogic {
     yield;
    }
 
-    // --- BUG FIX STARTS HERE ---
-    // Get all runners who finished their movement.
-    const finishedRunners = transitions.map(t => t.runner).filter(r => !r.isOut);
-    
-    // Define the correct processing order for bases to prevent race conditions.
-    // Lead runners (e.g., from 3rd to Home) must be processed before trailing runners.
-    const baseOrder = { 'third': 3, 'second': 2, 'first': 1, 'home': 0 };
+   // --- BUG FIX: Process runner arrivals in correct order to avoid race conditions ---
+   const finishedRunners = transitions.map(t => t.runner).filter(r => !r.isOut);
+   const baseOrder = { 'third': 3, 'second': 2, 'first': 1, 'home': 0 };
 
-    // Sort the runners based on their starting base, in descending order.
-    // A runner from 'second' (value 2) will now be processed before a runner from 'first' (value 1).
-    finishedRunners.sort((a, b) => {
-        const baseValueA = baseOrder[a.base] || -1;
-        const baseValueB = baseOrder[b.base] || -1;
-        return baseValueB - baseValueA; // Sort descending (3, 2, 1, 0)
-    });
-    
-    // Now, process the runners in the correct, sorted order.
-    for (const runner of finishedRunners) {
-     logic._resolveRunnerArrival(runner);
-    }
-    // --- BUG FIX ENDS HERE ---
+   // Sort runners based on their starting base, descending.
+   // A runner from 'second' (2) is processed before a runner from 'first' (1).
+   finishedRunners.sort((a, b) => (baseOrder[b.base] || -1) - (baseOrder[a.base] || -1));
 
-    logic.runners = logic.runners.filter(r => r.base !== 'scored' && !r.isOut);
-    logic._updateAllBaseVisuals();
-    addAnimationLog("All runner movements complete.");
+   for (const runner of finishedRunners) {
+    logic._resolveRunnerArrival(runner);
+   }
+   // --- END BUG FIX ---
+
+   logic.runners = logic.runners.filter(r => r.base !== 'scored' && !r.isOut);
+   logic._updateAllBaseVisuals();
+   addAnimationLog("All runner movements complete.");
   }).bind(this)(this, transitions);
  }
 
  getState() {
- return {
-  base_coords: this.base_coords,
-  base_states: { ...this.base_states },
-  base_colors: { ...this.base_colors },
-  last_toggle_time: { ...this.last_toggle_time },
-  dynamic_flash_ms: { ...this.dynamic_flash_ms },
-  runners: this.runners.map(r => ({
-  pos: [...r.pos],
-  base: r.base,
-  target: r.target,
-  player: { ...r.player },
-  speed: r.speed,
-  current_fraction: r.current_fraction,
-  isOut: r.isOut,
-  isMoving: r.isMoving
-  })),
-  homeScore: this.homeScore,
-  awayScore: this.awayScore,
-  outs: this.outs,
-  inning: this.inning,
-  topOfInning: this.topOfInning,
-  logHTML: logElement.innerHTML
- };
+  return {
+   base_coords: this.base_coords,
+   base_states: { ...this.base_states },
+   base_colors: { ...this.base_colors },
+   last_toggle_time: { ...this.last_toggle_time },
+   dynamic_flash_ms: { ...this.dynamic_flash_ms },
+   runners: this.runners.map(r => ({
+    pos: [...r.pos],
+    base: r.base,
+    target: r.target,
+    player: { ...r.player },
+    speed: r.speed,
+    current_fraction: r.current_fraction,
+    isOut: r.isOut,
+    isMoving: r.isMoving
+   })),
+   homeScore: this.homeScore,
+   awayScore: this.awayScore,
+   outs: this.outs,
+   inning: this.inning,
+   topOfInning: this.topOfInning,
+   logHTML: logElement.innerHTML
+  };
  }
  setState(state) {
- Object.assign(this, state);
- this.runners = state.runners.map(rData =>
-  new Runner(rData.pos, rData.base, rData.target, rData.player)
- );
+  Object.assign(this, state);
+  this.runners = state.runners.map(rData =>
+   new Runner(rData.pos, rData.base, rData.target, rData.player)
+  );
  }
 }
 
+// --- CANVAS & RENDERING LOGIC ---
 const canvas = document.getElementById("baseballCanvas");
 const ctx = canvas.getContext("2d");
 let canvasWidth = 600, canvasHeight = 600;
@@ -806,36 +867,40 @@ const base_coords = {
 };
 const logic = new GameLogic(base_coords);
 let animation_gen = null, redrawNeeded = true, resizeNeeded = true;
+
 function resizeCanvas() {
  const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
- const computedStyle = getComputedStyle(canvas.parentElement);
- const containerWidth = parseInt(computedStyle.width, 10);
- const canvasSize = containerWidth * 0.97;
- canvas.width = canvasSize * dpr;
- canvas.height = canvasSize * dpr;
- canvas.style.width = canvasSize + 'px';
- canvas.style.height = canvasSize + 'px';
+ const rect = canvas.getBoundingClientRect(); // Use getBoundingClientRect for accurate dimensions
+ 
+ if (rect.width === 0 || rect.height === 0) return; // Don't resize if not visible
+
+ canvas.width = rect.width * dpr;
+ canvas.height = rect.height * dpr;
+ 
+ // The style width/height are already set by CSS, so we don't need to set them here.
+ 
  canvasWidth = canvas.width;
  canvasHeight = canvas.height;
  const norm = {
- home: [0.5, 0.8], first: [0.7, 0.6], second: [0.5, 0.4], third: [0.3, 0.6],
+  home: [0.5, 0.8], first: [0.7, 0.6], second: [0.5, 0.4], third: [0.3, 0.6],
  };
  logic.base_coords = {
- home: [canvasWidth * norm.home[0], canvasHeight * norm.home[1]],
- first: [canvasWidth * norm.first[0], canvasHeight * norm.first[1]],
- second: [canvasWidth * norm.second[0], canvasHeight * norm.second[1]],
- third: [canvasWidth * norm.third[0], canvasHeight * norm.third[1]],
+  home: [canvasWidth * norm.home[0], canvasHeight * norm.home[1]],
+  first: [canvasWidth * norm.first[0], canvasHeight * norm.first[1]],
+  second: [canvasWidth * norm.second[0], canvasHeight * norm.second[1]],
+  third: [canvasWidth * norm.third[0], canvasHeight * norm.third[1]],
  };
  logic.runners.forEach(r => { if (!r.isMoving) r.pos = logic.get_runner_position(r.base); });
  redrawNeeded = true;
 }
+
 function draw_field() {
  ctx.clearRect(0, 0, canvas.width, canvas.height);
  if (backgroundImageLoaded && backgroundImage) {
- ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
  } else {
- ctx.fillStyle = "#30803f";
- ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#30803f";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
  }
  const bc = logic.base_coords;
  const mx = (bc.home[0] + bc.second[0]) / 2;
@@ -853,91 +918,93 @@ function draw_field() {
  ctx.restore();
  const BASE_HALF = canvasWidth * 0.032;
  for (const base in bc) {
- const [x, y] = bc[base];
- ctx.save();
- ctx.shadowColor = "#a6ff4d";
- ctx.shadowBlur = 13;
- ctx.globalAlpha = 0.91;
- ctx.fillStyle = logic.base_colors[base];
- ctx.strokeStyle = "#358c21";
- ctx.beginPath();
- ctx.moveTo(x, y - BASE_HALF);
- ctx.lineTo(x + BASE_HALF, y);
- ctx.lineTo(x, y + BASE_HALF);
- ctx.lineTo(x - BASE_HALF, y);
- ctx.closePath();
- ctx.fill();
- ctx.shadowBlur = 0;
- ctx.globalAlpha = 1;
- ctx.lineWidth = 3;
- ctx.stroke();
- ctx.font = `900 ${Math.floor(canvasWidth * BASE_LABEL_FONT_SCALE)}px 'Oswald','Arial Black',Arial,sans-serif`;
- ctx.textAlign = "center";
- ctx.fillStyle = "#18331e";
- ctx.shadowColor = "#a6ff4d";
- ctx.shadowBlur = 6;
- ctx.fillText(base.toUpperCase(), x, y - BASE_HALF - 10);
- ctx.restore();
- }
- if (logoImage.complete && logoImage.width) {
- const logoHeight = canvasHeight * 0.17;
- const logoWidth = logoHeight * (logoImage.width / logoImage.height);
- ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, canvasHeight * 0.05, logoWidth, logoHeight);
- }
-}
-function draw_runners() {
- for (const r of logic.runners) {
- if (!r.isOut) {
-  const [x, y] = r.pos;
-  const runnerRadius = canvasWidth * 0.025;
-
+  const [x, y] = bc[base];
   ctx.save();
   ctx.shadowColor = "#a6ff4d";
-  ctx.shadowBlur = 8;
-  ctx.globalAlpha = 0.92;
-  ctx.fillStyle = "#c90019";
+  ctx.shadowBlur = 13;
+  ctx.globalAlpha = 0.91;
+  ctx.fillStyle = logic.base_colors[base];
+  ctx.strokeStyle = "#358c21";
   ctx.beginPath();
-  ctx.arc(x, y, runnerRadius, 0, 2 * Math.PI);
+  ctx.moveTo(x, y - BASE_HALF);
+  ctx.lineTo(x + BASE_HALF, y);
+  ctx.lineTo(x, y + BASE_HALF);
+  ctx.lineTo(x - BASE_HALF, y);
+  ctx.closePath();
   ctx.fill();
   ctx.shadowBlur = 0;
   ctx.globalAlpha = 1;
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = "#a6ff4d";
+  ctx.lineWidth = 3;
   ctx.stroke();
-  ctx.restore();
-
-  const whiteBgRadius = runnerRadius * 0.9;
-  ctx.save();
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.restore();
-
-  if (r.logoLoaded && r.logoImage) {
-  const logoSize = whiteBgRadius * 1.8;
-  const logoX = x - logoSize / 2;
-  const logoY = y - logoSize / 2;
-  ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
-  }
-  ctx.save();
-  const name = r.player?.Name.toUpperCase() || "RANDOM";
-  ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
+  ctx.font = `900 ${Math.floor(canvasWidth * BASE_LABEL_FONT_SCALE)}px 'Oswald','Arial Black',Arial,sans-serif`;
   ctx.textAlign = "center";
-  ctx.textBaseline = "bottom";
-  const gapAboveCircle = canvasWidth * 0.015;
-  const nameBaselineY = y - runnerRadius - gapAboveCircle;
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#18331e";
-  ctx.strokeText(name, x, nameBaselineY);
-  ctx.fillStyle = "#a6ff4d";
-  ctx.shadowColor = "#232a35";
-  ctx.shadowBlur = 10;
-  ctx.fillText(name, x, nameBaselineY);
+  ctx.fillStyle = "#18331e";
+  ctx.shadowColor = "#a6ff4d";
+  ctx.shadowBlur = 6;
+  ctx.fillText(base.toUpperCase(), x, y - BASE_HALF - 10);
   ctx.restore();
  }
+ if (logoImage.complete && logoImage.width) {
+  const logoHeight = canvasHeight * 0.17;
+  const logoWidth = logoHeight * (logoImage.width / logoImage.height);
+  ctx.drawImage(logoImage, (canvasWidth - logoWidth) / 2, canvasHeight * 0.05, logoWidth, logoHeight);
  }
 }
+
+function draw_runners() {
+ for (const r of logic.runners) {
+  if (!r.isOut) {
+   const [x, y] = r.pos;
+   const runnerRadius = canvasWidth * 0.025;
+
+   ctx.save();
+   ctx.shadowColor = "#a6ff4d";
+   ctx.shadowBlur = 8;
+   ctx.globalAlpha = 0.92;
+   ctx.fillStyle = "#c90019";
+   ctx.beginPath();
+   ctx.arc(x, y, runnerRadius, 0, 2 * Math.PI);
+   ctx.fill();
+   ctx.shadowBlur = 0;
+   ctx.globalAlpha = 1;
+   ctx.lineWidth = 2;
+   ctx.strokeStyle = "#a6ff4d";
+   ctx.stroke();
+   ctx.restore();
+
+   const whiteBgRadius = runnerRadius * 0.9;
+   ctx.save();
+   ctx.fillStyle = 'white';
+   ctx.beginPath();
+   ctx.arc(x, y, whiteBgRadius, 0, 2 * Math.PI);
+   ctx.fill();
+   ctx.restore();
+
+   if (r.logoLoaded && r.logoImage) {
+    const logoSize = whiteBgRadius * 1.8;
+    const logoX = x - logoSize / 2;
+    const logoY = y - logoSize / 2;
+    ctx.drawImage(r.logoImage, logoX, logoY, logoSize, logoSize);
+   }
+   ctx.save();
+   const name = r.player?.Name.toUpperCase() || "RANDOM";
+   ctx.font = `bold ${Math.floor(canvasWidth * PLAYER_NAME_FONT_SCALE)}px 'Share Tech Mono','Oswald','Arial',sans-serif`;
+   ctx.textAlign = "center";
+   ctx.textBaseline = "bottom";
+   const gapAboveCircle = canvasWidth * 0.015;
+   const nameBaselineY = y - runnerRadius - gapAboveCircle;
+   ctx.lineWidth = 4;
+   ctx.strokeStyle = "#18331e";
+   ctx.strokeText(name, x, nameBaselineY);
+   ctx.fillStyle = "#a6ff4d";
+   ctx.shadowColor = "#232a35";
+   ctx.shadowBlur = 10;
+   ctx.fillText(name, x, nameBaselineY);
+   ctx.restore();
+  }
+ }
+}
+
 function updateScoreboard() {
  document.getElementById("away-score").textContent = logic.awayScore;
  document.getElementById("home-score").textContent = logic.homeScore;
@@ -947,35 +1014,40 @@ function updateScoreboard() {
 }
 function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
- const el = document.getElementById(`mini-base-${base}`);
- if (el) {
-  if (logic.runners.some(r => r.base === base && !r.isOut)) {
-  el.classList.add("occupied");
-  } else {
-  el.classList.remove("occupied");
+  const el = document.getElementById(`mini-base-${base}`); // CORRECTED TEMPLATE LITERAL
+  if (el) {
+   if (logic.runners.some(r => r.base === base && !r.isOut)) {
+    el.classList.add("occupied");
+   } else {
+    el.classList.remove("occupied");
+   }
   }
- }
  });
 }
+
+// --- MAIN GAME LOOP & EVENT HANDLERS ---
 function update_gui() {
  if (resizeNeeded) { resizeCanvas(); resizeNeeded = false; }
  logic.update_flashing();
  if (animation_gen) {
- const next = animation_gen.next();
- if (next.done) animation_gen = null;
+  const next = animation_gen.next();
+  if (next.done) animation_gen = null;
  }
  if (redrawNeeded) {
- draw_field();
- draw_runners();
- redrawNeeded = false;
+  draw_field();
+  draw_runners();
+  redrawNeeded = false;
  }
  requestAnimationFrame(update_gui);
 }
-update_gui();
+update_gui(); // Start the animation loop
+
 setInterval(() => {
  updateScoreboard();
  updateMiniBases();
 }, DOM_UPDATE_INTERVAL);
+
+// --- USER ACTIONS ---
 function moveRunners() {
  if (animation_gen) return;
  const steps = logic.move_all_runners();
@@ -983,9 +1055,16 @@ function moveRunners() {
 }
 function speedTestRunners() {
  if (animation_gen) return;
- logic.runners.forEach(r => { r.speed *= 3; });
- const steps = logic.move_all_runners();
- if (steps) animation_gen = steps;
+ const tempRunners = logic.runners.filter(r => !r.isOut && !r.isMoving);
+ if (tempRunners.length > 0) {
+    saveState();
+    addAnimationLog("Speed test engaged: runners are 3x faster!");
+    tempRunners.forEach(r => r.speed *= 3);
+    const steps = logic.move_all_runners();
+    if (steps) animation_gen = steps;
+ } else {
+    addAnimationLog("No runners to speed test.");
+ }
 }
 function resetScenario() {
  animation_gen = null;
@@ -998,11 +1077,10 @@ function resetScenario() {
 function tagRunnerOut(runner) {
  if (runner.isOut) return;
  saveState();
- runner.tagOut(); // Use the new encapsulated method
+ runner.tagOut();
  addAnimationLog(`<b>${runner.player.Name}</b> (moving from ${runner.base} to ${runner.target}) is tagged out!`);
  logic.recordOut();
  const base = runner.base;
- // Update the visual of the base the runner came from
  const stillOccupied = logic.runners.some(r => r.base === base && !r.isOut);
  if (!stillOccupied) {
   logic.set_base_default(base);
@@ -1012,22 +1090,23 @@ function tagRunnerOut(runner) {
 
 document.querySelectorAll(".mini-base").forEach(baseElement => {
  baseElement.addEventListener("click", () => {
- const base = baseElement.getAttribute("data-base");
- logic.add_runner(base);
+  const base = baseElement.getAttribute("data-base");
+  logic.add_runner(base);
  });
 });
 undoBtn.addEventListener('click', undo);
+
 function handleCanvasInteraction(event) {
  event.preventDefault();
  let pointerX, pointerY;
  if (event.type.startsWith("touch")) {
- if (event.touches.length > 0) {
-  pointerX = event.touches[0].clientX;
-  pointerY = event.touches[0].clientY;
- } else { return; }
+  if (event.touches.length > 0) {
+   pointerX = event.touches[0].clientX;
+   pointerY = event.touches[0].clientY;
+  } else { return; }
  } else {
- pointerX = event.clientX;
- pointerY = event.clientY;
+  pointerX = event.clientX;
+  pointerY = event.clientY;
  }
  const rect = canvas.getBoundingClientRect();
  const scaleX = canvas.width / rect.width;
@@ -1037,83 +1116,81 @@ function handleCanvasInteraction(event) {
  const clickRadius = canvasWidth * 0.03;
 
  for (const runner of logic.runners) {
- if (!runner.isOut) {
-  const [rx, ry] = runner.pos;
-  if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
-  tagRunnerOut(runner);
-  return;
+  if (!runner.isOut) {
+   const [rx, ry] = runner.pos;
+   if (Math.hypot(clickX - rx, clickY - ry) < clickRadius) {
+    tagRunnerOut(runner);
+    return;
+   }
   }
- }
  }
 
  if (animation_gen) {
- const baseClickRadius = canvasWidth * 0.04;
- for (const baseName in logic.base_coords) {
-  const [baseX, baseY] = logic.base_coords[baseName];
-  if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
-  const runnerToTag = logic.runners.find(
-   r => r.isMoving && !r.isOut && r.target === baseName
-  );
-  if (runnerToTag) {
-   addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
-   tagRunnerOut(runnerToTag);
-   return;
+  const baseClickRadius = canvasWidth * 0.04;
+  for (const baseName in logic.base_coords) {
+   const [baseX, baseY] = logic.base_coords[baseName];
+   if (Math.hypot(clickX - baseX, clickY - baseY) < baseClickRadius) {
+    const runnerToTag = logic.runners.find(
+     r => r.isMoving && !r.isOut && r.target === baseName
+    );
+    if (runnerToTag) {
+     addAnimationLog(`Force out at ${baseName.toUpperCase()}!`);
+     tagRunnerOut(runnerToTag);
+     return;
+    }
+   }
   }
-  }
- }
  }
 
  const mound_x = (logic.base_coords.home[0] + logic.base_coords.second[0]) / 2;
  const mound_y = (logic.base_coords.home[1] + logic.base_coords.second[1]) / 2;
  if (!animation_gen && Math.hypot(clickX - mound_x, clickY - mound_y) < clickRadius * 2) {
- moveRunners();
- return;
+  moveRunners();
+  return;
  }
 }
+
 canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
 window.addEventListener("resize", () => { resizeNeeded = true; });
-const containerObserver = new MutationObserver(() => { resizeNeeded = true; });
-containerObserver.observe(container, { attributes: true, attributeFilter: ['style', 'class'] });
+
+// Use ResizeObserver for more reliable detection of size changes, including CSS-driven ones.
+const resizeObserver = new ResizeObserver(() => {
+    resizeNeeded = true;
+});
+resizeObserver.observe(canvas);
+
+
 document.addEventListener('keydown', e => {
- if (e.target.tagName === 'INPUT') return;
+ if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
  if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); moveRunners(); }
- else if (e.key === "Enter") { moveRunners(); }
+ else if (e.key === "Enter") { e.preventDefault(); moveRunners(); }
  else if (e.key === "Escape") { e.preventDefault(); resetScenario(); }
- else if (e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+ else if (e.key.toLowerCase() === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undo(); }
 });
 
-// --- SLIDER SPEED CONTROL LOGIC ---
+// --- UI CONTROL LOGIC ---
 const runnerSpeedSlider = document.getElementById("runnerSpeedSlider");
 const runnerSpeedDisplay = document.getElementById("runnerSpeedDisplay");
 runnerSpeedSlider.addEventListener("input", function(event) {
- // Update the global time variable from the slider's value
  targetHomeToFirstTime = parseFloat(event.target.value);
- // Update the display to show the time in seconds
  runnerSpeedDisplay.textContent = targetHomeToFirstTime.toFixed(2) + "s";
- // Update ALL runners to reflect the new time, even those currently in motion.
  logic.runners.forEach(runner => runner.updateSpeed());
 });
 
-// --- Preset Toggle Button logic uses time ---
 const togglePresetBtn = document.getElementById("toggle-preset-btn");
 togglePresetBtn.addEventListener("click", () => {
-  // Cycle to the next preset
-  currentPresetIndex = (currentPresetIndex + 1) % SPEED_PRESETS.length;
-  currentSpeedPreset = SPEED_PRESETS[currentPresetIndex];
+ currentPresetIndex = (currentPresetIndex + 1) % SPEED_PRESETS.length;
+ currentSpeedPreset = SPEED_PRESETS[currentPresetIndex];
+ addAnimationLog(`Switched to ${currentSpeedPreset.name} speed preset.`);
 
-  addAnimationLog(`Switched to ${currentSpeedPreset.name} speed preset.`);
+ runnerSpeedSlider.min = currentSpeedPreset.eliteTime;
+ runnerSpeedSlider.max = currentSpeedPreset.slowTime;
+ runnerSpeedSlider.value = currentSpeedPreset.avgTime;
+ togglePresetBtn.textContent = `SWITCH PRESET (${currentSpeedPreset.name})`;
 
-  // Update the slider's range and value to match the new preset's times
-  runnerSpeedSlider.min = currentSpeedPreset.eliteTime;
-  runnerSpeedSlider.max = currentSpeedPreset.slowTime;
-  runnerSpeedSlider.value = currentSpeedPreset.avgTime;
-
-  // Update the button text
-  togglePresetBtn.textContent = `SWITCH PRESET (${currentSpeedPreset.name})`;
-
-  // Programmatically trigger the slider's input event to update everything
-  runnerSpeedSlider.dispatchEvent(new Event('input'));
+ // Programmatically trigger the slider's input event to update everything
+ runnerSpeedSlider.dispatchEvent(new Event('input'));
 });
 
 // --- ESP32 WEBSOCKET INITIALIZATION ---
@@ -1124,22 +1201,22 @@ function connectToDevice(device) {
  const ws = new WebSocket(`ws://${device.ip}/ws`);
  esp_websockets[device.ip] = ws;
  ws.onopen = function(event) {
- addAnimationLog(`✅ Successfully connected to ${device.name}.`);
- statusIndicator.className = 'status-indicator status-connected';
- logic.sendAllBaseStates();
+  addAnimationLog(`✅ Successfully connected to ${device.name}.`);
+  statusIndicator.className = 'status-indicator status-connected';
+  logic.sendAllBaseStates();
  };
  ws.onclose = function(event) {
- addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
- statusIndicator.className = 'status-indicator status-disconnected';
- setTimeout(() => connectToDevice(device), 5000);
+  addAnimationLog(`❌ Disconnected from ${device.name}. Reconnecting in 5s...`);
+  statusIndicator.className = 'status-indicator status-disconnected';
+  setTimeout(() => connectToDevice(device), 5000);
  };
  ws.onerror = function(error) {
- addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
- statusIndicator.className = 'status-indicator status-disconnected';
- console.error(`WebSocket Error for ${device.name}: `, error);
+  addAnimationLog(`WebSocket error with ${device.name}. Check console.`);
+  statusIndicator.className = 'status-indicator status-disconnected';
+  console.error(`WebSocket Error for ${device.name}: `, error);
  };
  ws.onmessage = function(event) {
- if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
+  if (DEBUG_MODE) console.log(`Message from ${device.name}:`, event.data);
  };
 }
 function initializeAllConnections() {
