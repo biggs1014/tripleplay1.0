@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <title>TRIPLE PLAY 1.0</title>
+ <title>TRIPLE PLAY 1.0 (Corrected)</title>
  <style>
 :root {
  --tv-blue: #212b47;
@@ -260,7 +260,6 @@ button:hover, button:focus-visible {
   <div class="mini-base base-home" id="mini-base-home" data-base="home"></div>
   </div>
 
-  <!-- --- REVISION: Label changed to be more general --- -->
   <div style="width: 96%; max-width: 500px; margin: 20px auto 8px auto; text-align:center;">
    <label for="runnerSpeedSlider" style="color:#fff; font-weight:bold;">Runner Pace (Elite ←→ Slow):</label>
    <input type="range" id="runnerSpeedSlider" min="3.8" max="4.7" step="0.01" value="4.3" style="width:60%;">
@@ -290,14 +289,13 @@ button:hover, button:focus-visible {
  </div>
 <script>
 // --- GLOBAL CONFIGURATION ---
-const DEBUG_MODE = true;
-const DEVICE_PIXEL_RATIO_CAP = 2;
-const DOM_UPDATE_INTERVAL = 250;
-const BASE_LABEL_FONT_SCALE = 0.02;
-const PLAYER_NAME_FONT_SCALE = 0.035;
-const GAME_FPS = 60;
-// Ratio for how much faster a base-to-base run is than home-to-first (due to leadoff)
-const BASE_TO_BASE_TIME_RATIO = 0.85;
+const DEBUG_MODE = true; // Enables detailed console logging for development and troubleshooting.
+const DEVICE_PIXEL_RATIO_CAP = 2; // Caps rendering resolution on high-DPR screens (like Retina) to 2x. Prevents performance issues on 4K+ monitors.
+const DOM_UPDATE_INTERVAL = 250; // How often (in milliseconds) to update non-canvas elements like the scoreboard and mini-bases. A lower value is more responsive but uses more CPU.
+const BASE_LABEL_FONT_SCALE = 0.02; // Font size for base labels (Home, First, etc.) as a percentage of the canvas width.
+const PLAYER_NAME_FONT_SCALE = 0.035; // Font size for player names above runner circles, as a percentage of the canvas width.
+const GAME_FPS = 60; // The target frames per second for all animations. This is crucial for consistent animation speed across different devices.
+const BASE_TO_BASE_TIME_RATIO = 0.85; // A runner with a leadoff is faster than one starting from a standstill. This makes base-to-base sprints 85% of the time it takes to get from home to first.
 
 function calcSpeed(seconds) { return 1 / (seconds * GAME_FPS); }
 function lerp(a, b, t) { return a + (b - a) * t; }
@@ -673,6 +671,8 @@ class GameLogic {
   }
  }
 
+ // --- CORRECTED FUNCTION ---
+ // The following function has been modified to fix the runner race condition.
  move_all_runners() {
   saveState();
   const runnersToMove = this.runners.filter((r) => !r.isOut && !r.isMoving);
@@ -734,13 +734,31 @@ class GameLogic {
     yield;
    }
 
-   const finishedRunners = transitions.map(t => t.runner).filter(r => !r.isOut);
-   for (const runner of finishedRunners) {
-    logic._resolveRunnerArrival(runner);
-   }
-   logic.runners = logic.runners.filter(r => r.base !== 'scored' && !r.isOut);
-   logic._updateAllBaseVisuals();
-   addAnimationLog("All runner movements complete.");
+    // --- BUG FIX STARTS HERE ---
+    // Get all runners who finished their movement.
+    const finishedRunners = transitions.map(t => t.runner).filter(r => !r.isOut);
+    
+    // Define the correct processing order for bases to prevent race conditions.
+    // Lead runners (e.g., from 3rd to Home) must be processed before trailing runners.
+    const baseOrder = { 'third': 3, 'second': 2, 'first': 1, 'home': 0 };
+
+    // Sort the runners based on their starting base, in descending order.
+    // A runner from 'second' (value 2) will now be processed before a runner from 'first' (value 1).
+    finishedRunners.sort((a, b) => {
+        const baseValueA = baseOrder[a.base] || -1;
+        const baseValueB = baseOrder[b.base] || -1;
+        return baseValueB - baseValueA; // Sort descending (3, 2, 1, 0)
+    });
+    
+    // Now, process the runners in the correct, sorted order.
+    for (const runner of finishedRunners) {
+     logic._resolveRunnerArrival(runner);
+    }
+    // --- BUG FIX ENDS HERE ---
+
+    logic.runners = logic.runners.filter(r => r.base !== 'scored' && !r.isOut);
+    logic._updateAllBaseVisuals();
+    addAnimationLog("All runner movements complete.");
   }).bind(this)(this, transitions);
  }
 
