@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <title>TRIPLE PLAY 1.0 (Completed & Responsive)</title>
+ <title>TRIPLE PLAY 1.0 (Mobile Corrected)</title>
  <style>
 :root {
  --tv-blue: #212b47;
@@ -18,7 +18,6 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html {
-    /* Ensures the layout smoothly adapts to size changes */
     height: 100%;
 }
 body {
@@ -43,6 +42,7 @@ body {
  position: relative;
  padding: 0;
 }
+/* Default Portrait Layout */
 #game-container {
  width: 100%;
  height: 100%;
@@ -237,42 +237,44 @@ button:hover, button:focus-visible {
 /* --- RESPONSIVE STYLES --- */
 
 /* Smaller phone screens (portrait) */
-@media (max-width: 660px) {
- canvas { max-width: 99vw; }
- #scoreboard-container { max-width: 99vw; }
+@media (max-width: 700px) and (orientation: portrait) {
+ canvas { max-width: 98vw; }
+ #scoreboard-container { max-width: 98vw; }
  .scoreboard-section { font-size: 1em; padding: 8px 2px 7px 2px;}
  button { font-size: 0.95em; padding: 9px 13px; }
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
 
-/* Landscape orientation (e.g., iPad horizontal) */
-@media (orientation: landscape) and (min-height: 500px) {
+/* Landscape orientation for Phones, iPads, and Desktops */
+/* THIS IS THE CORRECTED MEDIA QUERY */
+@media (orientation: landscape) and (min-width: 700px) {
     .main-container {
-        overflow: hidden; /* Prevent scrolling on the main body */
+        overflow: hidden;
     }
     #game-container {
         flex-direction: row;
-        align-items: flex-start;
+        align-items: center; /* Vertically center the columns */
         justify-content: center;
         gap: 20px;
         padding: 20px;
         height: 100%;
-        overflow: hidden; /* This container does not scroll */
+        width: 100%;
+        overflow: hidden;
     }
     canvas {
         flex-shrink: 0;
         width: auto;
         height: 95%;
         max-width: none;
-        max-height: calc(100dvh - 40px);
+        max-height: calc(100dvh - 40px); /* Use dynamic height for mobile */
         margin-bottom: 0;
     }
     #controls-panel {
         flex-grow: 1;
         height: calc(100dvh - 40px); /* Fill available height minus padding */
         overflow-y: auto; /* Allow this panel to scroll if content overflows */
-        width: 450px;
-        max-width: 45%;
+        width: 400px; /* A more fixed width */
+        max-width: min(45%, 500px); /* Cap width on very large screens */
         padding: 0 15px;
         align-items: center;
         justify-content: flex-start;
@@ -282,7 +284,9 @@ button:hover, button:focus-visible {
         max-width: 100%; /* Override max-widths set for portrait */
     }
     #animation-log {
-        max-height: 150px; /* Allow more log history */
+        flex-grow: 1; /* Allow log to take up remaining space */
+        min-height: 100px; /* Ensure it has a minimum size */
+        max-height: none; /* Let it grow */
     }
 }
  </style>
@@ -292,7 +296,6 @@ button:hover, button:focus-visible {
  <div class="main-container">
     <div id="game-container">
         <canvas id="baseballCanvas"></canvas>
-        <!-- This new panel groups all controls for better responsive layout -->
         <div id="controls-panel">
             <div id="action-buttons">
                 <button id="undo-btn" title="Undo Last (Z)" disabled>UNDO</button>
@@ -330,7 +333,7 @@ button:hover, button:focus-visible {
                 <span id="runnerSpeedDisplay" style="color:#a6ff4d; margin-left:10px;">4.30s</span>
             </div>
             <div id="animation-log"></div>
-            <div style="display: flex; justify-content: center; margin-top:7px; padding-bottom: 20px;">
+            <div style="display: flex; justify-content: center; margin-top: auto; padding: 20px 0;">
                 <div style="text-align:center; margin: 0 10px;">
                     <span style="color:white; display:block;">ESP32-1</span>
                     <div id="status-display-1" class="status-indicator status-connecting" title="TRIPLE PLAY HUB Status"></div>
@@ -686,7 +689,7 @@ class GameLogic {
    case "first": return "second";
    case "second": return "third";
    case "third": return "home";
-   default: "home";
+   default: return "home";
   }
  }
  remove_runner_from_base(runner) {
@@ -870,14 +873,12 @@ let animation_gen = null, redrawNeeded = true, resizeNeeded = true;
 
 function resizeCanvas() {
  const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
- const rect = canvas.getBoundingClientRect(); // Use getBoundingClientRect for accurate dimensions
+ const rect = canvas.getBoundingClientRect();
  
- if (rect.width === 0 || rect.height === 0) return; // Don't resize if not visible
+ if (rect.width === 0 || rect.height === 0) return;
 
  canvas.width = rect.width * dpr;
  canvas.height = rect.height * dpr;
- 
- // The style width/height are already set by CSS, so we don't need to set them here.
  
  canvasWidth = canvas.width;
  canvasHeight = canvas.height;
@@ -1014,7 +1015,7 @@ function updateScoreboard() {
 }
 function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
-  const el = document.getElementById(`mini-base-${base}`); // CORRECTED TEMPLATE LITERAL
+  const el = document.getElementById(`mini-base-${base}`);
   if (el) {
    if (logic.runners.some(r => r.base === base && !r.isOut)) {
     el.classList.add("occupied");
@@ -1154,12 +1155,11 @@ canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
 window.addEventListener("resize", () => { resizeNeeded = true; });
 
-// Use ResizeObserver for more reliable detection of size changes, including CSS-driven ones.
+// Use ResizeObserver for more reliable detection of size changes.
 const resizeObserver = new ResizeObserver(() => {
     resizeNeeded = true;
 });
 resizeObserver.observe(canvas);
-
 
 document.addEventListener('keydown', e => {
  if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
