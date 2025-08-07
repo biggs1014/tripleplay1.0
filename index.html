@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <title>TRIPLE PLAY 1.0 (Mobile Corrected)</title>
+ <title>TRIPLE PLAY 1.0 (Completed & Responsive)</title>
  <style>
 :root {
  --tv-blue: #212b47;
@@ -18,6 +18,7 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html {
+    /* Ensures the layout smoothly adapts to size changes */
     height: 100%;
 }
 body {
@@ -42,7 +43,6 @@ body {
  position: relative;
  padding: 0;
 }
-/* Default Portrait Layout */
 #game-container {
  width: 100%;
  height: 100%;
@@ -237,46 +237,46 @@ button:hover, button:focus-visible {
 /* --- RESPONSIVE STYLES --- */
 
 /* Smaller phone screens (portrait) */
-@media (max-width: 700px) and (orientation: portrait) {
- canvas { max-width: 98vw; }
- #scoreboard-container { max-width: 98vw; }
+@media (max-width: 660px) {
+ canvas { max-width: 99vw; }
+ #scoreboard-container { max-width: 99vw; }
  .scoreboard-section { font-size: 1em; padding: 8px 2px 7px 2px;}
  button { font-size: 0.95em; padding: 9px 13px; }
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
 
-/* Landscape orientation for Phones, iPads, and Desktops */
-/* THIS IS THE CORRECTED MEDIA QUERY */
-@media (orientation: landscape) and (min-width: 700px) {
+/* Landscape orientation (e.g., phone/tablet horizontal) */
+@media (orientation: landscape) and (min-height: 500px) {
     .main-container {
-        overflow: hidden;
+        overflow: hidden; /* Prevent scrolling on the main body */
     }
     #game-container {
         flex-direction: row;
-        align-items: center; /* Vertically center the columns */
+        align-items: flex-start;
         justify-content: center;
         gap: 20px;
         padding: 20px;
         height: 100%;
-        width: 100%;
-        overflow: hidden;
+        overflow: hidden; /* This container does not scroll */
     }
     canvas {
         flex-shrink: 0;
         width: auto;
         height: 95%;
         max-width: none;
-        max-height: calc(100dvh - 40px); /* Use dynamic height for mobile */
+        max-height: calc(100dvh - 40px);
         margin-bottom: 0;
     }
     #controls-panel {
         flex-grow: 1;
         height: calc(100dvh - 40px); /* Fill available height minus padding */
         overflow-y: auto; /* Allow this panel to scroll if content overflows */
-        width: 400px; /* A more fixed width */
-        max-width: min(45%, 500px); /* Cap width on very large screens */
+        width: 450px;
+        max-width: 45%;
         padding: 0 15px;
-        align-items: center;
+        align-items: center; /* Correctly centers items horizontally */
+
+        /* FIX: This anchors all content to the top of the panel, preventing it from shifting up when the log grows. */
         justify-content: flex-start;
     }
     #action-buttons, #scoreboard-container, #mini-base-container, #animation-log, .slider-container {
@@ -284,9 +284,7 @@ button:hover, button:focus-visible {
         max-width: 100%; /* Override max-widths set for portrait */
     }
     #animation-log {
-        flex-grow: 1; /* Allow log to take up remaining space */
-        min-height: 100px; /* Ensure it has a minimum size */
-        max-height: none; /* Let it grow */
+        max-height: 150px; /* Allow more log history in landscape */
     }
 }
  </style>
@@ -296,6 +294,7 @@ button:hover, button:focus-visible {
  <div class="main-container">
     <div id="game-container">
         <canvas id="baseballCanvas"></canvas>
+        <!-- This new panel groups all controls for better responsive layout -->
         <div id="controls-panel">
             <div id="action-buttons">
                 <button id="undo-btn" title="Undo Last (Z)" disabled>UNDO</button>
@@ -333,7 +332,7 @@ button:hover, button:focus-visible {
                 <span id="runnerSpeedDisplay" style="color:#a6ff4d; margin-left:10px;">4.30s</span>
             </div>
             <div id="animation-log"></div>
-            <div style="display: flex; justify-content: center; margin-top: auto; padding: 20px 0;">
+            <div style="display: flex; justify-content: center; margin-top:7px; padding-bottom: 20px;">
                 <div style="text-align:center; margin: 0 10px;">
                     <span style="color:white; display:block;">ESP32-1</span>
                     <div id="status-display-1" class="status-indicator status-connecting" title="TRIPLE PLAY HUB Status"></div>
@@ -356,19 +355,19 @@ button:hover, button:focus-visible {
  </div>
 <script>
 // --- GLOBAL CONFIGURATION (Defined and Explained) ---
-/** @const {boolean} DEBUG_MODE - Enables detailed console logging for development and troubleshooting. */
+/** @const  DEBUG_MODE - Enables detailed console logging for development and troubleshooting. */
 const DEBUG_MODE = true;
-/** @const {number} DEVICE_PIXEL_RATIO_CAP - Caps rendering resolution on high-DPR screens (like Retina) to 2x. Prevents performance issues on 4K+ monitors by avoiding unnecessarily large canvas buffers. */
+/** @const  DEVICE_PIXEL_RATIO_CAP - Caps rendering resolution on high-DPR screens (like Retina) to 2x. Prevents performance issues on 4K+ monitors by avoiding unnecessarily large canvas buffers. */
 const DEVICE_PIXEL_RATIO_CAP = 2;
-/** @const {number} DOM_UPDATE_INTERVAL - How often (in milliseconds) to update non-canvas elements like the scoreboard and mini-bases. A lower value is more responsive but uses slightly more CPU. 250ms is a good balance. */
+/** @const  DOM_UPDATE_INTERVAL - How often (in milliseconds) to update non-canvas elements like the scoreboard and mini-bases. A lower value is more responsive but uses slightly more CPU. 250ms is a good balance. */
 const DOM_UPDATE_INTERVAL = 250;
-/** @const {number} BASE_LABEL_FONT_SCALE - Font size for base labels (Home, First, etc.) as a percentage of the canvas width. Allows text to scale with the canvas. */
+/** @const  BASE_LABEL_FONT_SCALE - Font size for base labels (Home, First, etc.) as a percentage of the canvas width. Allows text to scale with the canvas. */
 const BASE_LABEL_FONT_SCALE = 0.02;
-/** @const {number} PLAYER_NAME_FONT_SCALE - Font size for player names above runner circles, as a percentage of the canvas width. */
+/** @const  PLAYER_NAME_FONT_SCALE - Font size for player names above runner circles, as a percentage of the canvas width. */
 const PLAYER_NAME_FONT_SCALE = 0.035;
-/** @const {number} GAME_FPS - The target frames per second for all animations. This is crucial for consistent animation speed across different devices. All speed calculations are based on this value. */
+/** @const  GAME_FPS - The target frames per second for all animations. This is crucial for consistent animation speed across different devices. All speed calculations are based on this value. */
 const GAME_FPS = 60;
-/** @const {number} BASE_TO_BASE_TIME_RATIO - A runner with a leadoff is faster than one starting from a standstill. This makes base-to-base sprints this percentage (e.g., 85%) of the time it takes to get from home to first. */
+/** @const  BASE_TO_BASE_TIME_RATIO - A runner with a leadoff is faster than one starting from a standstill. This makes base-to-base sprints this percentage (e.g., 85%) of the time it takes to get from home to first. */
 const BASE_TO_BASE_TIME_RATIO = 0.85;
 
 // Helper functions
@@ -689,7 +688,7 @@ class GameLogic {
    case "first": return "second";
    case "second": return "third";
    case "third": return "home";
-   default: return "home";
+   default: "home";
   }
  }
  remove_runner_from_base(runner) {
@@ -873,13 +872,15 @@ let animation_gen = null, redrawNeeded = true, resizeNeeded = true;
 
 function resizeCanvas() {
  const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
- const rect = canvas.getBoundingClientRect();
- 
- if (rect.width === 0 || rect.height === 0) return;
+ const rect = canvas.getBoundingClientRect(); // Use getBoundingClientRect for accurate dimensions
+
+ if (rect.width === 0 || rect.height === 0) return; // Don't resize if not visible
 
  canvas.width = rect.width * dpr;
  canvas.height = rect.height * dpr;
- 
+
+ // The style width/height are already set by CSS, so we don't need to set them here.
+
  canvasWidth = canvas.width;
  canvasHeight = canvas.height;
  const norm = {
@@ -1015,6 +1016,7 @@ function updateScoreboard() {
 }
 function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
+  // FIX: Corrected the template literal from `$` to `${base}` to properly find the element ID.
   const el = document.getElementById(`mini-base-${base}`);
   if (el) {
    if (logic.runners.some(r => r.base === base && !r.isOut)) {
@@ -1155,11 +1157,12 @@ canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
 window.addEventListener("resize", () => { resizeNeeded = true; });
 
-// Use ResizeObserver for more reliable detection of size changes.
+// Use ResizeObserver for more reliable detection of size changes, including CSS-driven ones.
 const resizeObserver = new ResizeObserver(() => {
     resizeNeeded = true;
 });
 resizeObserver.observe(canvas);
+
 
 document.addEventListener('keydown', e => {
  if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
