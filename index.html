@@ -245,8 +245,9 @@ button:hover, button:focus-visible {
  .status-indicator { width: 16px; height: 16px; margin: 2.5px; }
 }
 
-/* Landscape orientation (e.g., phone/tablet horizontal) */
-@media (orientation: landscape) and (min-height: 500px) {
+/* Landscape orientation (for phones, tablets, and desktops) */
+/* FIX: Removed 'and (min-height: 500px)' which prevented the landscape layout on iPhones, as their viewport height is often less than 500px when horizontal. */
+@media (orientation: landscape) {
     .main-container {
         overflow: hidden; /* Prevent scrolling on the main body */
     }
@@ -275,9 +276,7 @@ button:hover, button:focus-visible {
         max-width: 45%;
         padding: 0 15px;
         align-items: center; /* Correctly centers items horizontally */
-
-        /* FIX: This anchors all content to the top of the panel, preventing it from shifting up when the log grows. */
-        justify-content: flex-start;
+        justify-content: flex-start; /* Anchors all content to the top */
     }
     #action-buttons, #scoreboard-container, #mini-base-container, #animation-log, .slider-container {
         width: 100%;
@@ -805,18 +804,13 @@ class GameLogic {
     yield;
    }
 
-   // --- BUG FIX: Process runner arrivals in correct order to avoid race conditions ---
    const finishedRunners = transitions.map(t => t.runner).filter(r => !r.isOut);
    const baseOrder = { 'third': 3, 'second': 2, 'first': 1, 'home': 0 };
-
-   // Sort runners based on their starting base, descending.
-   // A runner from 'second' (2) is processed before a runner from 'first' (1).
    finishedRunners.sort((a, b) => (baseOrder[b.base] || -1) - (baseOrder[a.base] || -1));
 
    for (const runner of finishedRunners) {
     logic._resolveRunnerArrival(runner);
    }
-   // --- END BUG FIX ---
 
    logic.runners = logic.runners.filter(r => r.base !== 'scored' && !r.isOut);
    logic._updateAllBaseVisuals();
@@ -872,15 +866,13 @@ let animation_gen = null, redrawNeeded = true, resizeNeeded = true;
 
 function resizeCanvas() {
  const dpr = Math.min(window.devicePixelRatio || 1, DEVICE_PIXEL_RATIO_CAP);
- const rect = canvas.getBoundingClientRect(); // Use getBoundingClientRect for accurate dimensions
+ const rect = canvas.getBoundingClientRect();
 
- if (rect.width === 0 || rect.height === 0) return; // Don't resize if not visible
+ if (rect.width === 0 || rect.height === 0) return;
 
  canvas.width = rect.width * dpr;
  canvas.height = rect.height * dpr;
-
- // The style width/height are already set by CSS, so we don't need to set them here.
-
+ 
  canvasWidth = canvas.width;
  canvasHeight = canvas.height;
  const norm = {
@@ -1016,7 +1008,6 @@ function updateScoreboard() {
 }
 function updateMiniBases() {
  ["home", "first", "second", "third"].forEach(base => {
-  // FIX: Corrected the template literal from `$` to `${base}` to properly find the element ID.
   const el = document.getElementById(`mini-base-${base}`);
   if (el) {
    if (logic.runners.some(r => r.base === base && !r.isOut)) {
@@ -1157,7 +1148,6 @@ canvas.addEventListener("pointerdown", handleCanvasInteraction);
 canvas.addEventListener("touchstart", handleCanvasInteraction, { passive: false });
 window.addEventListener("resize", () => { resizeNeeded = true; });
 
-// Use ResizeObserver for more reliable detection of size changes, including CSS-driven ones.
 const resizeObserver = new ResizeObserver(() => {
     resizeNeeded = true;
 });
@@ -1192,7 +1182,6 @@ togglePresetBtn.addEventListener("click", () => {
  runnerSpeedSlider.value = currentSpeedPreset.avgTime;
  togglePresetBtn.textContent = `SWITCH PRESET (${currentSpeedPreset.name})`;
 
- // Programmatically trigger the slider's input event to update everything
  runnerSpeedSlider.dispatchEvent(new Event('input'));
 });
 
