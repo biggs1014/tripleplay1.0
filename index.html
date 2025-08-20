@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
- <title>TRIPLE PLAY 3.2 — Time-Based Motion + Pickle Logic</title>
+ <title>TRIPLE PLAY 3.3 — Time-Based Motion + Pickle Logic (No Return to Home)</title>
  <style>
 :root {
  --tv-blue: #212b47;
@@ -178,21 +178,10 @@ button:hover, button:focus-visible {
 }
 @media (orientation: landscape) {
   .main-container { overflow: hidden; }
-  #game-container {
-    flex-direction: row; align-items: flex-start; justify-content: center;
-    gap: 20px; padding: 20px; height: 100%; overflow: hidden;
-  }
-  canvas {
-    flex-shrink: 0; width: auto; height: 95%;
-    max-width: none; max-height: calc(100dvh - 40px); margin-bottom: 0;
-  }
-  #controls-panel {
-    flex-grow: 1; height: calc(100dvh - 40px); overflow-y: auto;
-    width: 450px; max-width: 45%; padding: 0 15px; align-items: center; justify-content: flex-start;
-  }
-  #action-buttons, #scoreboard-container, #animation-log, .slider-container {
-    width: 100%; max-width: 100%;
-  }
+  #game-container { flex-direction: row; align-items: flex-start; justify-content: center; gap: 20px; padding: 20px; height: 100%; overflow: hidden; }
+  canvas { flex-shrink: 0; width: auto; height: 95%; max-width: none; max-height: calc(100dvh - 40px); margin-bottom: 0; }
+  #controls-panel { flex-grow: 1; height: calc(100dvh - 40px); overflow-y: auto; width: 450px; max-width: 45%; padding: 0 15px; align-items: center; justify-content: flex-start; }
+  #action-buttons, #scoreboard-container, #animation-log, .slider-container { width: 100%; max-width: 100%; }
   #animation-log { max-height: 150px; }
 }
  </style>
@@ -572,7 +561,7 @@ function draw_field(){
 
   if (logoImage.complete && logoImage.width){
     const logoH = canvasHeight * 0.17;
-    const logoW = logoH * (logoImage.width / logoImage.height);
+       const logoW = logoH * (logoImage.width / logoImage.height);
     ctx.drawImage(logoImage, (canvasWidth - logoW)/2, canvasHeight*0.05, logoW, logoH);
   }
 }
@@ -698,7 +687,7 @@ function* AnimateRunners(initialTransitions) {
       if (runnersToRetreat.length > 0) {
         for (const t of transitions) {
           if (runnersToRetreat.some(r => r.id === t.runner.id) && !t.runner.isRetreating) {
-            // DO NOT allow batter-runner to return home (this guard is upstream, but safe to keep)
+            // Batter-runner (home->first) can never return home
             if (t.runner.startBase === 'home') continue;
             addAnimationLog(`<b>${t.runner.player.Name}</b> reverses toward previous base!`);
             const runner = t.runner;
@@ -729,6 +718,20 @@ function* AnimateRunners(initialTransitions) {
 
       // step animation
       for (const t of transitions) {
+        // RULE: extra safety — never allow a computed path to Home unless it's from 3rd (scoring)
+        if (t.end === logic.base_coords.home) {
+          // If the start is first, block this (no 1st -> home retreat)
+          const isFromFirst =
+            t.start[0] === logic.base_coords.first[0] &&
+            t.start[1] === logic.base_coords.first[1];
+          if (isFromFirst) {
+            addAnimationLog("Rule enforced: Runner cannot return to Home from 1st.");
+            // cancel this transition
+            t.runner.isMoving = false;
+            t.runner.isRetreating = false;
+            continue;
+          }
+        }
         if (!t.runner.updateMovement(t.start, t.end, frameDeltaSec)) {
           allFinished = false;
         }
@@ -906,18 +909,25 @@ function handleReturnAction() {
       }
     }
   } else {
-    // idle returns: exclude home entirely
+    // idle returns: exclude any return that would end at Home
     saveState();
     const runnersToMove = selectedRunnerIds.size > 0 ? logic.runners.filter(r => selectedRunnerIds.has(r.id)) : logic.runners;
+    // filter idle non-home runners; we’ll additionally block prevBase === 'home' per runner below
     const idleRunners = runnersToMove.filter(r => !r.isOut && !r.isMoving && r.base !== 'home');
     if (idleRunners.length === 0) { addAnimationLog("No runners to return."); return; }
     addAnimationLog("Returning runners...");
     const transitions = [];
     idleRunners.forEach(r => {
       const prevBase = logic.get_prev_base(r.base);
+      // RULE: never return to Home from 1st (or any base where prev is Home)
+      if (prevBase === 'home') {
+        addAnimationLog(`Rule enforced: <b>${r.player.Name}</b> cannot return to Home from ${r.base.toUpperCase()}.`);
+        return; // skip creating a transition
+      }
       r.startRetreating(prevBase);
       transitions.push({ runner: r, start: logic.get_runner_position(r.base), end: logic.base_coords[prevBase] });
     });
+    if (transitions.length === 0) { addAnimationLog("No valid runners to return (Home return blocked)."); return; }
     setLightsForTransitions(transitions);
     animation_gen = AnimateRunners(transitions);
   }
